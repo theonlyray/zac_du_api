@@ -10,6 +10,7 @@ use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Properties\PropertyController;
 use App\Http\Controllers\Requirements\RequirementController;
 use App\Http\Controllers\Specialties\SpecialtyController;
+use App\Http\Controllers\Units\UnitController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/roles', [AuthController::class, 'getRoles']);
         Route::patch('/roles/{role}', [AuthController::class, 'updateRole']);
         Route::get('/permisos', [AuthController::class, 'getPermissions']);
+        // Route::get('/actividades', [AuthController::class, 'getActivities']);
     });
 
     /**
@@ -66,6 +68,12 @@ Route::middleware('auth:sanctum')->group(function () {
      */
     Route::apiResource('departamentos', DepartmentController::class)
     ->parameters(['departamentos' => 'department']);
+
+    /**
+     * Units routes
+     */
+    Route::apiResource('unidades', UnitController::class)
+    ->parameters(['unidades' => 'unit']);
 
     /**
      * Licenses types routes

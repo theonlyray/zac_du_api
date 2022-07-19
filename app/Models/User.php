@@ -159,7 +159,7 @@ class User extends Authenticatable
             })->get();
 
         }else{
-            $withArray = ['college', 'department', 'specialties', 'applicantData', 'roles'];
+            $withArray = ['college', 'department', 'specialties', 'applicantData', 'roles', 'unit'];
 
             if (self::hasRole(['directorDpt','subDirectorDpt', 'jefeUnidadDpt','colaboradorDpt'])){
                  $relation = 'department';

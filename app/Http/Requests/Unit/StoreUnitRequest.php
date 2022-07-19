@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Unit;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateUserRequest extends FormRequest
+class StoreUnitRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,12 +26,8 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre'        => 'required|string',
-            'correo'        => 'required|email',
-            'contrasenia'   => 'sometimes|filled|string',
-            'validado'      => 'required|filled|boolean',
-            'role_id'       => 'sometimes',
-            'unit_id'       => 'sometimes',
+            'nombre'        => 'required|string|unique:units,nombre',
+            'department_id' => 'required|int|exists:departments,id'
         ];
     }
 

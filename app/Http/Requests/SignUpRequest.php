@@ -38,8 +38,8 @@ class SignUpRequest extends FormRequest
             'colonia'         => 'required|filled|string',
             'cp'              => 'required|filled|string|max:5|min:5',
             'role_id'         => 'required|filled|int',
-            'college_id'      => 'required_if:role_id,8|filled|int|exists:colleges,id',
-            'ocupacion'       => 'required_if:role_id,9|filled|string',
+            'college_id'      => 'required_if:role_id,9|filled|int|exists:colleges,id',
+            'ocupacion'       => 'required_if:role_id,10|filled|string',
             'dispositivo'     => 'sometimes|string',
         ];
     }

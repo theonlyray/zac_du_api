@@ -52,7 +52,7 @@ class UserController extends Controller
         $user->load(
             [ 'applicantData','specialties',
                 'college','department','file',
-                'roles' ]);
+                'roles', 'unit' ]);
 
         $user->getAllPermissions();
 
@@ -127,6 +127,10 @@ class UserController extends Controller
 
             if($request->has('role_id')){//?sync role
                 $user->syncRoles([$request->role_id]);
+            }
+
+            if($request->has('unit_id')){//?sync role
+                $user->unit()->sync([$request->unit_id]);
             }
         } catch (\Throwable $th) {
             DB::rollBack();

@@ -27,19 +27,19 @@ class AuthController extends Controller
 
         DB::beginTransaction();
 
-        switch ($userData['role_id']) {
-            case 8: $role = 'dro'; break;
-            case 9: $role = 'particular'; break;
-            default: $role = 'particular';break;
-        }
+        // switch ($userData['role_id']) {
+        //     case 9: $role = 'dro'; break;
+        //     case 10: $role = 'particular'; break;
+        //     default: $role = 'particular';break;
+        // }
 
         try {
             $user->save();
 
             $applicantData = new ApplicantData($userData);
             $user->applicantData()->save($applicantData);
-            $user->assignRole($role);
-            if($userData['role_id'] == 8) $user->college()->attach($userData['college_id']);
+            $user->assignRole($userData['role_id']);
+            if($userData['role_id'] == 9) $user->college()->attach($userData['college_id']);
             $token = $user->createToken($request->input('dispositivo', 'unknown'))
                 ->plainTextToken;
 

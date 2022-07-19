@@ -80,6 +80,14 @@ class RoleSeeder extends Seeder
                     'description' => 'Listar Permisos'
                 ])->assignRole($directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
 
+
+            /**
+             * Properties
+             */
+            Permission::create([
+                'name' => 'activities.index',
+                'description' => 'Listar registro de actividades'
+            ])->assignRole($directorDpt, $subDirectorDpt, $jefeUnidadDpt);
             /**
              * departments
              */
