@@ -14,6 +14,7 @@ use App\Http\Controllers\Units\UnitController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PdfController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,13 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/', function () {
+    return view('welcome');
+});
+Route::get('/pdf/{tipo}/licencia', [PdfController::class, 'pdf_licencia']);
+Route::get('/pdf/{tipo}/solicitud', [PdfController::class, 'pdf_solicitud']);
+
 
 Route::prefix('autenticacion')->group(function () {
     Route::get('/colegios', [AuthController::class, 'getColleges']);
