@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Duty\DestroyDutyRequest;
 use App\Http\Requests\Duty\StoreDutyRequest;
 use App\Http\Requests\Duty\UpdateDutyRequest;
+use App\Models\DepartmentUser;
 use App\Models\Duty;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class DutyController extends Controller
 {
@@ -19,6 +22,12 @@ class DutyController extends Controller
         $this->authorize('index', [Duty::class, $department]);
 
         $user = request()->user();
+
+        // //?auth in api
+        // self::auth($user);
+
+        // //?query duties null now
+        // $apiDuties = self::getDuties($user);
 
         if ($user->hasRole('jefeSDUMA')) $department = 0;
         $duties = Duty::getDutiesByDepartmentIdAndUserRole(
@@ -80,6 +89,41 @@ class DutyController extends Controller
         DB::commit();
 
         return response()->json($duty, 200);
+    }
+
+    public function auth(User $user)
+    {
+        $response = Http::acceptJson()
+            ->post('http://10.220.103.110:8001/api/login', [
+                'name' => 'pruebaapi',
+                'password' => 'pruebaapi'
+            ]);
+
+        abort_if(!$response->successful(),500,'Error de autenticacion (API), intentelo más tarde.');
+
+        $response = (json_decode($response));
+
+        $depData = DepartmentUser::firstWhere('user_id', $user->id);
+        $depData->fill(['api_op_token' =>$response->token]);
+        $depData->save();
+    }
+
+    public function getDuties(User $user)
+    {
+        $usrData = DepartmentUser::select('api_op_token')->firstWhere('user_id', $user->id);
+        $token = $usrData->api_op_token;
+
+        $response = Http::withHeaders([
+                'Authorization' => "Bearer {$token}",
+            ])
+            ->acceptJson()
+            ->get('http://10.220.103.110:8001/api/orden/getCuentas');
+
+        abort_if(!$response->successful(),500,'Error de consulta (API), intentelo más tarde.');
+
+        $response = (json_decode($response));
+
+        return $response->data;
     }
 
     //!not documented

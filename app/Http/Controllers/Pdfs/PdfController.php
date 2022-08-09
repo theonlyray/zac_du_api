@@ -10,6 +10,7 @@ use App\Models\License;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class PdfController extends Controller
@@ -27,9 +28,44 @@ class PdfController extends Controller
 
     public function pdf_licencia(License $license){
         self::getDataTemplate($license);
-        $pdf = PDF::loadView($this->template, $this->data);
-        Storage::put("public/solicitantes/{$license->user_id}/licencias/{$license->id}/{$license->folio}.pdf",$pdf->output());
-        return $pdf->stream();
+        $pdf = PDF::loadView($this->template, $this->data)->setPaper('letter', 'portrait');
+        // $pdf = Pdf::loadView('pdfs.pdf-licencia', compact('registro'))->setPaper('letter', 'portrait');
+        $file = $pdf->output();
+
+        //todo this must be moved to payment controller
+        $response = Http::acceptJson()->attach(
+            'document', $file, 'pdf-licencia.pdf'
+        )->post('http://10.220.107.111/api/v1/initialize', [
+            'signers_number' => 1,
+        ]);
+
+        $signed = (json_decode($response));
+
+        $response = Http::acceptJson()
+        ->post('http://10.220.107.111/api/v1/massive', [
+            'username' => 'MIQS690515I74',
+            'password' => 'WmtmpINMaU',
+            'process_id' =>  $signed->process_id,
+        ]);
+
+        $response = Http::acceptJson()
+        ->post('http://10.220.107.111/api/v1/finalize', [
+            'process_id' =>  $signed->process_id,
+        ]);
+        $file_URL = json_decode($response);
+
+        copy(
+            $file_URL->file,
+            storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/{$license->folio}.pdf"));
+        // ////
+        // self::getDataTemplate($license);
+        // $pdf = PDF::loadView($this->template, $this->data)->setPaper('letter', 'portrait');
+        // Storage::put("public/solicitantes/{$license->user_id}/licencias/{$license->id}/{$license->folio}.pdf",$pdf->output());
+        // return $pdf->stream();
+        return response()->download(
+            storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/{$license->folio}.pdf"),
+            "{$license->folio}.pdf"
+        );
     }
 
     public function getDataTemplate(License $license)
