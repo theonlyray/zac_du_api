@@ -46,11 +46,12 @@ class StorageService implements IStorageService
         $relativePath = $path . '/' . $filename . '.' . $extension;
 
         if (collect($this->validExtensions)->contains($extension)) {
-            Storage::put($relativePath, $decodedFile, 'public');
+            $saved = Storage::put($relativePath, $decodedFile, 'public');
             return [
                 "url" => Storage::url($relativePath),
                 "path" => $relativePath,
                 "extension" => $extension,
+                "save" => $saved
             ];
         }
 

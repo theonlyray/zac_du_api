@@ -28,6 +28,7 @@ class Order extends Model
         'pagada' => 'boolean',
         'validada' => 'boolean',
         'total' => 'double',
+        'duties.cantidad' => 'double',
     ];
 
     protected $with = [];

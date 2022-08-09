@@ -26,7 +26,8 @@ class CreatePropertiesTable extends Migration
                 ->nullable();
             $table->string('no_predial', 80)
                 ->nullable();
-            $table->string('clave_catastral', 80);
+            $table->string('clave_catastral', 80)
+                ->default('N/A');
                 // ->unique();
             $table->double('sup_terreno')
                 ->default(0.0)
@@ -40,7 +41,7 @@ class CreatePropertiesTable extends Migration
             $table->decimal('latitud', 10,7)
                 ->default(22.7743376);
             $table->decimal('longitud', 11,7)
-                ->default(-102.5898229);
+                ->default(-102.5879641);
             $table->string('mapa_ubicacion', 180)
                 ->nullable();
             $table->string('mapa_url', 180)

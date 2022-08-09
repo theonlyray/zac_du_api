@@ -25,8 +25,15 @@ class CreateFilesTable extends Migration
                 ->useCurrent();
             $table->timestamp('fecha_actualizacion')
                 ->useCurrent();
-            $table->integer('fileable_id');
-            $table->string('fileable_type', 180);
+            $table->boolean('para')
+                ->default(true)
+                ->nullable()
+                ->comment('true - dro | false - particular');
+            $table->foreignId('college_id')
+                ->nullable()
+                ->constrained('colleges');
+            $table->foreignId('user_id')
+                ->constrained('users');
         });
     }
 

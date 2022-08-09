@@ -70,8 +70,10 @@ class Duty extends Model
      */
     public static function getDutiesByDepartmentIdAndUserRole(int $departmentId, User $user){
         $duties = [];
-        if(!$user->hasRole(['dro', 'particular'])){//?superadmin, mpio
+        if(!$user->hasRole(['dro', 'particular','jefeSDUMA'])){//?superadmin, mpio
             $duties = self::where('department_id', $departmentId)->get();
+        }elseif ($user->hasRole(['jefeSDUMA'])) {
+            $duties = self::all();
         }else{//? dro, particular
             $duties = self::where('department_id', $departmentId)->where('activo', true)->get();
         }

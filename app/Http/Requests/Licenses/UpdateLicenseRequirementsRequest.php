@@ -26,7 +26,7 @@ class UpdateLicenseRequirementsRequest extends FormRequest
     public function rules()
     {
         return [
-            'comentario'    => 'sometimes|filled|string',
+            'comentario'    => 'sometimes|nullable|string',
             'estatus'       => 'required|filled|integer',
             'archivo'       => 'sometimes|filled|string',
         ];

@@ -9,6 +9,8 @@ class SFD extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'descripcion', 'medidas_colindancia',
         'm2_ocupacion', 'license_id',

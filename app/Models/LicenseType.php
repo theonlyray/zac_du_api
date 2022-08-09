@@ -70,7 +70,10 @@ class LicenseType extends Model
     public static function getLicenseTypesByRoleUser(User $user){
         $licenseTypes = [];
         //?set in an array departmentIds
-        if(!$user->hasRole(['dro', 'particular'])){//?superadmin, mpio
+        if($user->hasRole(['jefeSDUMA'])){//?
+            $licenseTypes = self::all();
+        }
+        else if(!$user->hasRole(['dro', 'particular'])){//?superadmin, mpio
             $userDepartmentIds = $user->department->pluck('id')->toArray();
             $licenseTypes = self::whereIn('department_id', $userDepartmentIds)->get();
         }else{//? applicants

@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Departments\DepartmentController;
+use App\Http\Controllers\Files\FileController;
 use App\Http\Controllers\Duties\DutyController;
 use App\Http\Controllers\Licenses\LicenseController;
 use App\Http\Controllers\Licenses\LicenseTypeController;
 use App\Http\Controllers\Orders\OrderController;
+use App\Http\Controllers\Pdfs\PdfController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Properties\PropertyController;
 use App\Http\Controllers\Requirements\RequirementController;
@@ -36,7 +38,8 @@ Route::prefix('autenticacion')->group(function () {
     // Route::post('/recuperacion', [AuthController::class, 'resetPassword']);
 });
 
-
+Route::get('/pdf/{tipo}/licencia', [PdfController::class, 'pdf_licencia']);
+Route::get('/pdf/{tipo}/solicitud', [PdfController::class, 'pdf_solicitud']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -94,6 +97,12 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters(['requisitos' => 'requirement']);
 
     /**
+     * Files routes
+     */
+    Route::apiResource('archivos', FileController::class)
+        ->parameters(['archivos' => 'file']);
+
+    /**
      * Users routes
      */
     Route::apiResource('usuarios', UserController::class)
@@ -116,6 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
      * Licenses routes
      */
     Route::get('/contador', [LicenseController::class, 'counter']);
+    Route::get('/folios', [LicenseController::class, 'folios']);
     Route::apiResource('licencias', LicenseController::class)
         ->parameters([
             'licencias' => 'license',
@@ -128,6 +138,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{license}/antecendente/{background}', [LicenseController::class, 'background']);
         Route::patch('/{license}/validaciones', [LicenseController::class, 'validations']);
         Route::patch('/{license}/observaciones', [LicenseController::class, 'observations']);
+        Route::get('/{license}/licencia', [PdfController::class, 'pdf_licencia']);
+        Route::post('/{license}/sublicencia', [LicenseController::class, 'sublicense']);
     });
 
     /**
@@ -136,6 +148,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('licencias/{license}/orden/{order}')->group(function () {
         Route::patch('/pago', [OrderController::class, 'updatePayment']);
+        Route::patch('/validar', [OrderController::class, 'validating']);
+        Route::get('/pdf', [OrderController::class, 'order']);
     });
 
     Route::apiResource('licencias.orden', OrderController::class)

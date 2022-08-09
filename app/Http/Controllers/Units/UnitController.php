@@ -16,9 +16,9 @@ class UnitController extends Controller
         $this->authorize('index', Unit::class);
 
         $user = request()->user();
-        $Unit = Unit::where('department_id', $user->department[0]->id)->get();
+        $unit = Unit::getUnitsByRole($user);
 
-        if (!empty($Unit)) return response()->json($Unit, 200);
+        if (!empty($unit)) return response()->json($unit, 200);
 
         abort(204, 'No se encontraron Unidades.');
     }

@@ -109,7 +109,7 @@ class User extends Authenticatable
      */
     public function file()
     {
-        return $this->morphOne(File::class, 'fileable');
+        return $this->hasMany(File::class);
     }
 
     /*
@@ -153,7 +153,7 @@ class User extends Authenticatable
     {
         $users = [];
 
-        if (self::hasRole(['super-admin'])) {
+        if (self::hasRole(['super-admin', 'jefeSDUMA'])) {
             $users = self::whereHas('roles', function($q) use ($roleName) {
                 $q->where('name',$roleName);
             })->get();

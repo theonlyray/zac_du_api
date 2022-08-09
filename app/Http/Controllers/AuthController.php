@@ -124,7 +124,7 @@ class AuthController extends Controller
         $user = $request->user();
         if ($user->hasRole(['super-admin'])) {
             $roles = Role::all();
-        }else if($user->hasRole(['directorDpt', 'subDirectorDpt',])) {
+        }else if($user->hasRole(['jefeSDUMA','directorDpt', 'subDirectorDpt',])) {
             $roles = Role::whereIn('name', ['directorDpt','subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])->get();
         }else if($user->hasRole(['directorCol', 'subDirectorCol',])){
             $roles = Role::whereIn('name', ['subDirectorCol', 'colaboradorCol'])->get();
@@ -149,7 +149,8 @@ class AuthController extends Controller
 
         return response()->json($role , 200);
     }
-    public function getPermissions(Request $request)
+
+    public function getPermissions()
     {
         $this->authorize('permissionsIndex', Role::class);
 

@@ -72,32 +72,7 @@ class UserSeeder extends Seeder
             "correo" => "col_2_deppdu@gmail.com",
             "contrasenia" => Hash::make("password"),
         ])->assignRole('colaboradorDpt');
-        //SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE
-        User::create([
-            "nombre" => "Dir SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
-            "correo" => "dirdepsduma@gmail.com",
-            "contrasenia" => Hash::make("password"),
-        ])->assignRole('directorDpt');
-        User::create([
-            "nombre" => "Subdir SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
-            "correo" => "subdirdepsduma@gmail.com",
-            "contrasenia" => Hash::make("password"),
-        ])->assignRole('subDirectorDpt');
-        User::create([
-            "nombre" => "Jefe de Unidad SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
-            "correo" => "ju_depsduma@gmail.com",
-            "contrasenia" => Hash::make("password"),
-        ])->assignRole('jefeUnidadDpt');
-        User::create([
-            "nombre" => "col 1 SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
-            "correo" => "col_1_depsduma@gmail.com",
-            "contrasenia" => Hash::make("password"),
-        ])->assignRole('colaboradorDpt');
-        User::create([
-            "nombre" => "col 2 SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
-            "correo" => "col_2_depsduma@gmail.com",
-            "contrasenia" => Hash::make("password"),
-        ])->assignRole('colaboradorDpt');
+
 
         //colegio ing
         User::create([
@@ -138,5 +113,12 @@ class UserSeeder extends Seeder
             "correo" => "rchaireztorres@gmail.com",
             "contrasenia" => Hash::make("password"),
         ])->assignRole('particular');
+
+
+        User::create([
+            "nombre" => "JEFE DE SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
+            "correo" => "jefeSDUMA@gmail.com",
+            "contrasenia" => Hash::make("password"),
+        ])->assignRole('jefeSDUMA');
     }
 }

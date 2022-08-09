@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Order;
+namespace App\Http\Requests\Files;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateOrderRequest extends FormRequest
+class DestroyFileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,29 +18,21 @@ class UpdateOrderRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            'no_ref_pago' => 'sometimes|string|nullable',
-            'validada'    => 'sometimes|boolean',
-            'pagada'      => 'sometimes|boolean',
-            'derechos'              => 'sometimes|nullable|array',
-            'derechos.*.id'         => 'sometimes|nullable|integer|exists:duties,id',
-            'derechos.*.cantidad'   => 'sometimes|nullable|numeric',
+            'contrasenia'   => 'bail|required|filled|string',
         ];
     }
 
+    /**
+     * Custom messages for validation rules
+     *
+     * @return array
+     */
     public function messages()
     {
-        return [
-            'required' => 'El campo :attribute es requerido.',
-            'string' => 'El campo :attribute debe ser un texto válido.',
-        ];
+        return ['required' => 'El campo :attribute es requerido'];
     }
 
     protected function failedValidation(Validator $validator)

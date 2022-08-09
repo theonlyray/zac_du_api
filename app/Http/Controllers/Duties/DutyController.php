@@ -18,6 +18,9 @@ class DutyController extends Controller
 
         $this->authorize('index', [Duty::class, $department]);
 
+        $user = request()->user();
+
+        if ($user->hasRole('jefeSDUMA')) $department = 0;
         $duties = Duty::getDutiesByDepartmentIdAndUserRole(
             $department,
             request()->user()

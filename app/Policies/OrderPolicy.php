@@ -30,7 +30,7 @@ class OrderPolicy
     public function before(User $user, $ability, $model, $departmentIdInRequest = null, License $license = null, Order $order = null, $password = null)
     {
        //?set in an array departmentIds
-       $userDepartmentIds = $user->departments->pluck('id')->toArray();
+       $userDepartmentIds = $user->department->pluck('id')->toArray();
 
        if ($ability == 'index' || $ability == 'show' || $ability == 'update') {
             //?user is a public servant and dont belongs to the department
@@ -38,7 +38,7 @@ class OrderPolicy
             //? user is applicat but doesn owner of license
             if($user->hasRole(['dro', 'particular']) && $user->id != $license->user_id) $this->flag = false;
 
-        }else if($ability == 'store'){
+        }else if($ability == 'store' || $ability == 'validate'){
             if(!in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = false;
         }elseif ($ability == 'destroy') {
             if(!in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = false;
@@ -87,5 +87,12 @@ class OrderPolicy
         return $user->can('order.destroy') && $this->flag
             ? Response::allow()
             : Response::deny($this->deletingMessage);
+    }
+
+    public function validate(User $user)
+    {
+        return $user->can('order.validate') && $this->flag
+            ? Response::allow()
+            : Response::deny('No tienes permisos para validar ordenes.');
     }
 }

@@ -54,25 +54,5 @@ class DepartmentUserSeeder extends Seeder
             "user_id" => 11,
             "department_id" => 2,
         ]);
-        DepartmentUser::create([
-            "user_id" => 12,
-            "department_id" => 3,
-        ]);
-        DepartmentUser::create([
-            "user_id" => 13,
-            "department_id" => 3,
-        ]);
-        DepartmentUser::create([
-            "user_id" => 14,
-            "department_id" => 3,
-        ]);
-        DepartmentUser::create([
-            "user_id" => 15,
-            "department_id" => 3,
-        ]);
-        DepartmentUser::create([
-            "user_id" => 16,
-            "department_id" => 3,
-        ]);
     }
 }

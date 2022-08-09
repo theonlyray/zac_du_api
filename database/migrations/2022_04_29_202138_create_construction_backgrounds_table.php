@@ -15,11 +15,14 @@ class CreateConstructionBackgroundsTable extends Migration
     {
         Schema::create('construction_backgrounds', function (Blueprint $table) {
             $table->id();
-            $table->string('prior_license_id', 35);
-            $table->date('fecha');
+            $table->string('physical_prior_license_id', 35)
+                ->nullable();
+            $table->date('fecha')
+                ->nullable();
             //? should be related but the first licenses will be from the previous process, so there will be no records
-            // $table->foreignId('prior_license_id')
-            //     ->constrained('licenses');
+            $table->foreignId('prior_license_id')
+                ->nullable()
+                ->constrained('licenses');
             $table->foreignId('current_license_id')
                 ->constrained('licenses')
                 ->onDelete('cascade');

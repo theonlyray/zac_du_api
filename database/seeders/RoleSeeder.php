@@ -56,11 +56,15 @@ class RoleSeeder extends Seeder
                 'name' => 'particular',
                 'description' => 'Particular'
             ]);
+            $jefeSDUMA     = Role::create([
+                'name' => 'jefeSDUMA',
+                'description' => 'JEFE DE SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE'
+            ]);
 
-            $allRoles    = [ $directorDpt, $subDirectorDpt, $colaboradorDpt, $jefeUnidadDpt, $directorCol, $subDirectorCol, $colaboradorCol, $dro, $particular ];
-            $allMpi      = [ $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $colaboradorDpt ];
+            $allRoles    = [ $jefeSDUMA, $directorDpt, $subDirectorDpt, $colaboradorDpt, $jefeUnidadDpt, $directorCol, $subDirectorCol, $colaboradorCol, $dro, $particular ];
+            $allMpi      = [ $jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $colaboradorDpt ];
             $allCol      = [ $directorCol, $subDirectorCol, $colaboradorCol ];
-            $rolesMpiApp = [ $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $colaboradorDpt, $dro, $particular ];
+            $rolesMpiApp = [ $jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $colaboradorDpt, $dro, $particular ];
             $rolesColApp = [ $directorCol, $subDirectorCol, $colaboradorCol, $dro, $particular ];
             $applicants  = [ $dro, $particular ];
 
@@ -70,15 +74,15 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'role.index',
                     'description' => 'Listar Roles'
-                ])->assignRole($directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
+                ])->assignRole($jefeSDUMA, $directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
             Permission::create([
                     'name' => 'role.update',
                     'description' => 'Actualizar Permisos de un Rol'
-                ])->assignRole($directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
+                ])->assignRole($jefeSDUMA, $directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
             Permission::create([
                     'name' => 'permission.index',
                     'description' => 'Listar Permisos'
-                ])->assignRole($directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
+                ])->assignRole($jefeSDUMA, $directorDpt, $subDirectorDpt, $directorCol, $subDirectorCol,);
 
 
             /**
@@ -87,7 +91,7 @@ class RoleSeeder extends Seeder
             Permission::create([
                 'name' => 'activities.index',
                 'description' => 'Listar registro de actividades'
-            ])->assignRole($directorDpt, $subDirectorDpt, $jefeUnidadDpt);
+            ])->assignRole($jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt);
             /**
              * departments
              */
@@ -106,11 +110,44 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'department.update',
                     'description' => 'Editar Departamentos'
-                ])->assignRole([$directorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt]);
             Permission::create([
                     'name' => 'department.destroy',
                     'description' => 'Eliminar Departamentos'
                 ]);//?only to super-admin
+
+            /**
+             * files
+             */
+            Permission::create([
+                    'name' => 'file.index',
+                    'description' => 'Listar Archivos'
+                ])->assignRole($allRoles);
+            Permission::create([
+                    'name' => 'file.show',
+                    'description' => 'Ver detalles de un Archivos'
+                ])->assignRole($allRoles);
+            Permission::create([
+                    'name' => 'file.store',
+                    'description' => 'Cargar Archivos'
+                ])->assignRole([
+                    $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $colaboradorDpt,
+                    $directorCol, $subDirectorCol, $colaboradorCol
+                ]);
+            Permission::create([
+                    'name' => 'file.update',
+                    'description' => 'Editar Archivos'
+                ])->assignRole([
+                    $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $colaboradorDpt,
+                    $directorCol, $subDirectorCol, $colaboradorCol
+                ]);
+            Permission::create([
+                    'name' => 'file.destroy',
+                    'description' => 'Eliminar Archivos'
+                ])->assignRole([
+                    $directorDpt, $subDirectorDpt, $jefeUnidadDpt,
+                    $directorCol, $subDirectorCol,
+                ]);
 
             /**
              * Colleges
@@ -198,19 +235,19 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'user.store',
                     'description' => 'Crear Usuarios (Colaboradores)'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt, $directorCol, $subDirectorCol]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $directorCol, $subDirectorCol]);
             Permission::create([
                     'name' => 'user.update',
                     'description' => 'Editar Usuarios'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt, $directorCol, $subDirectorCol]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt, $directorCol, $subDirectorCol]);
             Permission::create([
                     'name' => 'user.destroy',
                     'description' => 'Eliminar Usuarios'
-                ])->assignRole([$directorDpt, $subDirectorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt]);
             Permission::create([
                     'name' => 'user.permissions',
                     'description' => 'Administrar Permisos de Usuarios'
-                ])->assignRole([$directorDpt, $directorCol]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $directorCol]);
 
             /**
              * License Types
@@ -226,7 +263,7 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'licenseType.store',
                     'description' => 'Crear Tipos de Licencias'
-                ])->assignRole([$directorDpt, $subDirectorDpt,]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt,]);
             Permission::create([
                     'name' => 'licenseType.update',
                     'description' => 'Editar Tipos de Licencias'
@@ -234,7 +271,7 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'licenseType.destroy',
                     'description' => 'Eliminar Tipos de Licencias'
-                ])->assignRole([$directorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt]);
 
             /**
              * Requirements
@@ -242,15 +279,15 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'requirement.index',
                     'description' => 'Listar Requisitos'
-                ])->assignRole($rolesMpiApp);
+                ])->assignRole($jefeSDUMA, $rolesMpiApp);
             Permission::create([
                     'name' => 'requirement.show',
                     'description' => 'Ver detalles de un Requisito'
-                ])->assignRole($rolesMpiApp);
+                ])->assignRole($jefeSDUMA, $rolesMpiApp);
             Permission::create([
                     'name' => 'requirement.store',
                     'description' => 'Crear Requisitos'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                     'name' => 'requirement.update',
                     'description' => 'Editar Requisitos'
@@ -258,7 +295,7 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'requirement.destroy',
                     'description' => 'Eliminar Requisitos'
-                ])->assignRole([$directorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt]);
 
             /**
              * Properties
@@ -318,43 +355,43 @@ class RoleSeeder extends Seeder
             Permission::create([
                     'name' => 'license.validateFirstReview',
                     'description' => 'Validar Primer Revisión'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                     'name' => 'license.validateSecondReview',
                     'description' => 'Validar Segunda Revisión'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                     'name' => 'license.validateThirdReview',
                     'description' => 'Validar Tercera Revisión'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                     'name' => 'license.observations',
                     'description' => 'Generar un Observacion para Solicitud'
-                ])->assignRole([$rolesMpiApp]);
+                ])->assignRole([$jefeSDUMA, $rolesMpiApp]);
             Permission::create([
                     'name' => 'license.sign',
                     'description' => 'Firmar una Solicitud'
-                ])->assignRole([$directorDpt, $subDirectorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt]);
             Permission::create([
                     'name' => 'license.authorize',
                     'description' => 'Autorizar una Licencia'
-                ])->assignRole([$directorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt]);
             Permission::create([
                     'name' => 'license.rejection',
                     'description' => 'Rechazar Solicitud'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                     'name' => 'license.completionApproval',
                     'description' => 'Visto bueno de una Terminación de Obra'
-                ])->assignRole([$directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                 'name' => 'license.signCompletionApproval',
                 'description' => 'Firmar una Terminación de Obra'
-            ])->assignRole([$directorDpt, $subDirectorDpt]);
+            ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt]);
             Permission::create([
                     'name' => 'license.authorizeCompletionApproval',
                     'description' => 'Autorizar una Terminación de Obra'
-                ])->assignRole([$directorDpt]);
+                ])->assignRole([$jefeSDUMA, $directorDpt]);
 
             /**
              * Duties
@@ -396,7 +433,7 @@ class RoleSeeder extends Seeder
             Permission::create([
                 'name' => 'order.store',
                 'description' => 'Crear una Ordene de pago'
-            ])->assignRole($allMpi);
+            ])->assignRole([$jefeSDUMA, $directorDpt]);
 
             Permission::create([
                 'name' => 'order.update',
@@ -404,9 +441,14 @@ class RoleSeeder extends Seeder
             ])->assignRole($rolesMpiApp);
 
             Permission::create([
+                'name' => 'order.validate',
+                'description' => 'Validar una Ordene de pago (actualizar ref. de pago)'
+            ])->assignRole($jefeSDUMA);
+
+            Permission::create([
                 'name' => 'order.destroy',
                 'description' => 'Eliminar una Ordene de pago'
-            ])->assignRole([$directorDpt]);
+            ])->assignRole([$jefeSDUMA, $directorDpt]);
         }
     }
 }

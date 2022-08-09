@@ -44,7 +44,6 @@ class LicensePolicy
             }
         }
         elseif ($ability == 'validations') {
-        logger($licenseData);
             switch ($licenseData) {
                 case 1:
                     if ($user->hasRole(['dro','particular'])) $this->flagValidation  = true;

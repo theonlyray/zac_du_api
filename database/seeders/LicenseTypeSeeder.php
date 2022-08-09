@@ -193,6 +193,55 @@ class LicenseTypeSeeder extends Seeder
                 "department_id" => 2,
                 "particular"     => true,
             ],
+            //?to set in correct place and update id in license's controller and observer
+            [
+                "nombre"        => "TERMINACIÓN DE OBRA",
+                "descripcion"   => null,
+                "nota"          => null,
+                "activo"        => false,
+                "department_id" => 1,
+                "particular"     => true,
+            ],
+            [
+                "nombre"        => "PERMISO PARA ROMPER PAVIMENTO",
+                "descripcion"   => null,
+                "nota"          => null,
+                "activo"        => true,
+                "department_id" => 1,
+                "particular"     => true,
+            ],
+            [
+                "nombre"        => "PERMISO PARA TRABAJOS DE DEMOLICIÓN",
+                "descripcion"   => null,
+                "nota"          => null,
+                "activo"        => true,
+                "department_id" => 1,
+                "particular"     => false,
+            ],
+            [
+                "nombre"        => "LICENCIA DE CONSTRUCCIÓN TECHUMBRES",
+                "descripcion"   => null,
+                "nota"          => "MENOR A 45M2",
+                "activo"        => true,
+                "department_id" => 1,
+                "particular"     => true,
+            ],
+            [
+                "nombre"        => "LICENCIA DE CONSTRUCCIÓN TECHUMBRES",
+                "descripcion"   => null,
+                "nota"          => "MAYOR A 45M2",
+                "activo"        => true,
+                "department_id" => 1,
+                "particular"     => false,
+            ],
+            [
+                "nombre"        => "PERMISO PARA CIMENTACIÓN",
+                "descripcion"   => null,
+                "nota"          => null,
+                "activo"        => true,
+                "department_id" => 1,
+                "particular"     => false,
+            ],
         ]);
     }
 }

@@ -46,4 +46,13 @@ class Unit extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public static function getUnitsByRole(User $user)
+    {
+        if ($user->hasRole(['jefeSDUMA'])) {
+            return Unit::all();
+        }else{
+            return Unit::where('department_id', $user->department[0]->id)->get();
+        }
+    }
 }

@@ -54,7 +54,7 @@ class License extends Model
             case 8: return 'Observaciones Segunda Revision';
             case 9: return 'Validado Tercera Revision';
             case 10: return 'Observaciones Tercera Revision';
-            case 11: return 'Ficha de Pago Generada';
+            case 11: return 'Por Pagar';
             case 12: return 'Pagado';
             case 13: return 'Proceso de Firmas';
             case 14: return 'Autorizado';
@@ -191,7 +191,30 @@ class License extends Model
     {
         $result['Total'] = 0;
 
-        if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
+        if ($user->hasRole(['jefeSDUMA'])) {
+            $gralWhereSentence = fn($status) =>
+                [
+                    ['estatus', $status],
+                    // ['licenseType.department_id', $user->department[0]->id],
+                ];
+
+            $result['Proceso'] =
+            License::where([
+                ['estatus', '>=', 1],
+                ['estatus', '<=', 13],
+                // ['licenseType.department_id', $user->department[0]->id],
+            ])->count();
+
+            $result['Autorizadas'] =
+            License::where($gralWhereSentence(14))->count();
+
+            $result['Canceladas'] =
+            License::where($gralWhereSentence(15))->count();
+
+            $result['Rechazadas'] =
+            License::where($gralWhereSentence(16))->count();
+        }
+        else if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
             $gralWhereSentence = fn($status) =>
                 [
                     ['estatus', $status],
@@ -289,7 +312,7 @@ class License extends Model
             default: $statusInt = 0; break;
         }
 
-        if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
+        if ($user->hasRole(['jefeSDUMA'])) {
             $gralWhereSentence = fn() =>
             [
                 ['estatus', $statusInt],
@@ -305,6 +328,45 @@ class License extends Model
                 'validity',
                 'validations',
                 'observations',
+                'ad',
+                'order'
+            ];
+
+            if ($status === 'Proceso') {
+                return License::where(
+                    [
+                        ['estatus', '>=', 1],
+                        ['estatus', '<=', 13],
+                        // ['licenseType.department_id', $user->department[0]->id],
+                    ]
+                )->with($withArray)
+                ->orderBy('licenses.id','desc')
+                ->get();
+            }
+            return License::where($gralWhereSentence())
+                ->with($withArray)
+                ->orderBy('licenses.id','desc')
+                ->get();
+        }
+        else if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
+            $gralWhereSentence = fn() =>
+            [
+                ['estatus', $statusInt],
+                // ['licenseType.department_id', $user->department[0]->id],
+            ];
+
+            $withArray = [
+                'applicant.applicantData',
+                'licenseType',
+                'property',
+                'construction',
+                'owner',
+                'validity',
+                'validations',
+                'observations',
+                'ad',
+                'backgrounds',
+                'order'
             ];
 
             if ($status === 'Proceso') {
@@ -344,6 +406,9 @@ class License extends Model
                 'validity',
                 'validations',
                 'observations',
+                'ad',
+                'backgrounds',
+                'order'
             ];
 
             if ($status === 'Proceso') {
@@ -354,7 +419,7 @@ class License extends Model
                     ]
                 )->where('estatus', '<=', 13)
                 ->with($withArray)
-                ->orderBy('licenses.id','desc')
+                ->orderBy('licenses.fecha_actualizacion','desc')
                 ->get();
             }
             return License::where($gralWhereSentence())

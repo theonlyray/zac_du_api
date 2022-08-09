@@ -14,7 +14,8 @@ class ConstructionBackground extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'prior_license_id', 'fecha', 'current_license_id',
+        'prior_license_id', 'physical_prior_license_id',
+        'fecha', 'current_license_id',
     ];
 
 
@@ -22,6 +23,9 @@ class ConstructionBackground extends Model
         'fecha' => 'datetime',
     ];
 
+    protected $with = [
+        'priorLicense'
+    ];
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -35,5 +39,10 @@ class ConstructionBackground extends Model
     public function license()
     {
         return $this->belongsTo(License::class, 'current_license_id', 'id');
+    }
+
+    public function priorLicense()
+    {
+        return $this->belongsTo(License::class, 'prior_license_id', 'id');
     }
 }

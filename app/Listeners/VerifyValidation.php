@@ -33,29 +33,17 @@ class VerifyValidation
         $user       = $event->user;
         $license    = $event->license;
 
-        if ($user->can('license.validateEntry') || $user->can('license.validateFirstReview') ||
-            $user->can('license.validateSecondReview') || $user->can('license.validateThirdReview')) {
-            DB::beginTransaction();
-
-            try {
-                $validition = new LicenseValidation(['user_id' => $user->id, 'descripcion' => $license->estatus]);
-                $license->validations()->save($validition);
-
-                $observations = LicenseObservation::where('created_at', '<=', Carbon::now())->get(); //get observations befo current validation
-
-                $observations = $observations->map(function ($observation){
-                    $observation->solventada = true; //?if theres a new validation old observations must be solved
-                     return $observation->save();
-                });
-            } catch (\Throwable $th) {
-                //throw $th;
-                logger($th);
-                DB::rollBack();
-                return 'Error al generar validación '. $th->getMessage();
+        $response = true;
+        foreach ($license->requirements as $key => $requirement) {
+            if ($requirement->requirement->obligatorio &&
+                ($requirement->estatus != 'Doc. cargado' &&
+                $requirement->estatus != 'Doc. corregido'&&
+                $requirement->estatus != 'Doc. Validado')
+                ) {//todo check why dont return boolean values
+                return 'false';
             }
-            DB::commit();
-        }else return 'No tienes permisos para realizar validar esta étapa.';
+        }
 
-        return true;
+        return 'true';
     }
 }

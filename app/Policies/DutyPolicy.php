@@ -27,7 +27,7 @@ class DutyPolicy
     public function before(User $user, $ability, $model, $departmentIdInRequest)
     {
        //?set in an array departmentIds
-       $userDepartmentIds = $user->departments->pluck('id')->toArray();
+       $userDepartmentIds = $user->department->pluck('id')->toArray();
 
        if ($ability == 'index' || $ability == 'show') {
            //?user is a public servant and dont belongs to the department

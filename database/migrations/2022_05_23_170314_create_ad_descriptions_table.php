@@ -15,9 +15,11 @@ class CreateAdDescriptionsTable extends Migration
     {
         Schema::create('ad_descriptions', function (Blueprint $table) {
             $table->id();
-            $table->boolean('colocacion')
-                ->default(true)
-                ->comment('If true, its an ad placement, otherwise renewal');
+            $table->string('colocacion', 255)
+                ->nullable();
+            // $table->boolean('colocacion')
+            //     ->default(true)
+            //     ->comment('If true, its an ad placement, otherwise renewal');
             $table->string('tipo', 255);
             $table->integer('cantidad')
                 ->default(1);

@@ -26,11 +26,6 @@ class DepartmentSeeder extends Seeder
                 "correo"            => $faker->unique()->safeEmail(),
                 "telefono"          => $faker->phoneNumber(),
             ],
-            [
-                "nombre"            => "SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
-                "correo"            => $faker->unique()->safeEmail(),
-                "telefono"          => $faker->phoneNumber(),
-            ],
         ]);
     }
 }

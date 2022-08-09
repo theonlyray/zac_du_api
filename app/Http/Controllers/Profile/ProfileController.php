@@ -16,7 +16,7 @@ class ProfileController extends Controller
     public function index()
     {
         $user = request()->user();
-        $user = $user->load(['applicantData', 'college', 'specialties', 'department', 'unit' ]);
+        $user = $user->load(['applicantData', 'college', 'specialties', 'department', 'unit', ]);
         $user->getAllPermissions();
         return response()->json($user, 200);
     }

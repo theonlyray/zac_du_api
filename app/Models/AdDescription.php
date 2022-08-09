@@ -9,6 +9,8 @@ class AdDescription extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'colocacion', 'tipo', 'cantidad', 'largo',
         'ancho', 'alto', 'colores', 'texto', 'fecha_inicio',
@@ -29,4 +31,9 @@ class AdDescription extends Model
     {
         return $this->belongsTo(License::class);
     }
+
+    // public function getColocacionAttribute($attribute)
+    // {
+    //     return $attribute == true ? 'Colocación' : 'Renovación';
+    // }
 }
