@@ -7,6 +7,7 @@ use App\Http\Controllers\Duties\DutyController;
 use App\Http\Controllers\Licenses\LicenseController;
 use App\Http\Controllers\Licenses\LicenseTypeController;
 use App\Http\Controllers\Orders\OrderController;
+use App\Http\Controllers\Payments\PaymentController;
 use App\Http\Controllers\Pdfs\PdfController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Properties\PropertyController;
@@ -40,6 +41,11 @@ Route::prefix('autenticacion')->group(function () {
 
 Route::get('/pdf/{tipo}/licencia', [PdfController::class, 'pdf_licencia']);
 Route::get('/pdf/{tipo}/solicitud', [PdfController::class, 'pdf_solicitud']);
+
+/**
+ * Payments routes
+ */
+Route::apiResource('/pagos', PaymentController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -157,5 +163,4 @@ Route::middleware('auth:sanctum')->group(function () {
         'licencias' => 'license',
         'orden'     => 'order',
     ]);
-
 });

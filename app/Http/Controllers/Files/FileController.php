@@ -38,7 +38,7 @@ class FileController extends Controller
 
         $user = $request->user();
 
-        if ($user->hasRole(['jefeSDUMA','directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
+        if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
             $route = 'public/mpio/public_files';
         }else if ($user->hasRole(['directorCol','subDirectorCol', 'colaboradorCol'])){
             $college = $user->college->pluck('id')->toArray();
