@@ -12,12 +12,14 @@ class OrderDuty extends Model
     public $timestamps = false;
 
     protected $fillable = [
-            'precio', 'cantidad', 'total',
+        'monto','precio', 'cantidad', 'cuenta',
+        'total', 'idCuenta', 'descripcion'
     ];
 
     protected $hidden = [];
 
     protected $casts = [
+        'monto' => 'double',
         'precio' => 'double',
         'cantidad' => 'double',
         'total' => 'double',

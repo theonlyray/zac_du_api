@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Duties;
 
+use App\Events\ApiOPQueried;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Duty\DestroyDutyRequest;
 use App\Http\Requests\Duty\StoreDutyRequest;
@@ -17,133 +18,48 @@ class DutyController extends Controller
 {
     public function index()
     {
-        $department = request()->query('department');
-
-        $this->authorize('index', [Duty::class, $department]);
+        $this->authorize('index', Duty::class);
 
         $user = request()->user();
 
-        // //?auth in api
-        // self::auth($user);
+        $event = event(new ApiOPQueried($user));
 
-        // //?query duties null now
-        // $apiDuties = self::getDuties($user);
+        //$event[0] is an api token if user has role jefeSDUMA else is null
+        $user->api_op_token = $event[0];
 
-        if ($user->hasRole('jefeSDUMA')) $department = 0;
-        $duties = Duty::getDutiesByDepartmentIdAndUserRole(
-            $department,
-            request()->user()
-        );
-        if (!empty($duties)) return response()->json($duties, 200);
+        $apiDuties = self::getDuties($user);
 
-        abort(204, 'No se encontraron derechos.');
+        if (!empty($apiDuties)) return response()->json($apiDuties, 200);
+
+        abort(204, 'No se encontraron cuentas.');
     }
 
     public function show(Duty $duty)
     {
-        $this->authorize('index', [Duty::class, $duty->department_id]);
+        $this->authorize('index', Duty::class);
 
         return response()->json($duty->load('department'), 200);
     }
 
-    public function store(StoreDutyRequest $request)
-    {
-        $dutyData = $request->validated();
-
-        $this->authorize('store', [Duty::class, $dutyData['department_id']]);
-
-        $dutyData['precio'] = $dutyData['precio'] / config('app.uma');
-        $duty = new Duty($dutyData);
-
-        DB::beginTransaction();
-
-        try {
-            $duty->save();
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            abort(500, 'No se ha guardado derecho inténtalo más tarde. '. $th);
-        }
-
-        DB::commit();
-
-        return response()->json($duty, 200);
-    }
-
-    public function update(UpdateDutyRequest $request, Duty $duty){
-        $dutyData = $request->validated();
-
-        $this->authorize('update', [Duty::class, $duty->department_id]);
-
-        DB::beginTransaction();
-
-        try {
-            $dutyData['precio'] = $dutyData['precio'] / config('app.uma');
-            $duty->update($dutyData);
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            abort(500, 'No se ha guardado el derecho inténtalo más tarde. '. $th);
-        }
-
-        DB::commit();
-
-        return response()->json($duty, 200);
-    }
-
-    public function auth(User $user)
-    {
-        $response = Http::acceptJson()
-            ->post('http://10.220.103.110:8001/api/login', [
-                'name' => 'pruebaapi',
-                'password' => 'pruebaapi'
-            ]);
-
-        abort_if(!$response->successful(),500,'Error de autenticacion (API), intentelo más tarde.');
-
-        $response = (json_decode($response));
-
-        $depData = DepartmentUser::firstWhere('user_id', $user->id);
-        $depData->fill(['api_op_token' =>$response->token]);
-        $depData->save();
-    }
-
     public function getDuties(User $user)
     {
-        $usrData = DepartmentUser::select('api_op_token')->firstWhere('user_id', $user->id);
-        $token = $usrData->api_op_token;
+        if (!$user->hasRole(['jefeSDUMA'])) {
+            $usrData = DepartmentUser::select('api_op_token')->firstWhere('user_id', $user->id);
+            $token = $usrData->api_op_token;
+        }else $token = $user->api_op_token;
+
 
         $response = Http::withHeaders([
                 'Authorization' => "Bearer {$token}",
             ])
             ->acceptJson()
-            ->get('http://10.220.103.110:8001/api/orden/getCuentas');
+            ->get('http://10.220.107.112/api/orden/getCuentas');
 
+            logger($response);
         abort_if(!$response->successful(),500,'Error de consulta (API), intentelo más tarde.');
 
         $response = (json_decode($response));
 
         return $response->data;
     }
-
-    //!not documented
-    // public function destroy(DestroyDutyRequest $request, Duty $duty)
-    // {
-
-    //     $this->authorize('destroy', [Duty::class, $duty->department_id, $request->contrasenia]);
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $duty->delete();
-
-    //     } catch (\Throwable $th) {
-    //         DB::rollBack();
-    //         abort(500, 'No se ha eliminado el derecho inténtalo más tarde. '. $th);
-    //     }
-
-    //     DB::commit();
-
-    //     return response()->json($duty, 200);
-    // }
 }

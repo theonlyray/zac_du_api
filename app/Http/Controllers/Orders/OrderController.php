@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers\Orders;
 
+use App\Events\ApiOPQueried;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\DestroyOrderRequest;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderPaymentRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
+use App\Http\Requests\Order\ValidateOrderRequest;
 use App\Models\ApplicantData;
 use App\Models\Duty;
 use App\Models\File;
 use App\Models\License;
 use App\Models\LicenseType;
 use App\Models\Order;
+use App\Models\OrderDuty;
 use App\Models\User;
 use App\Services\StorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -71,15 +76,11 @@ class OrderController extends Controller
 
         $user = $request->user();
 
-        foreach ($request->derechos as $key => $value) {
-            $duty = Duty::firstWhere('id', $value['id']);
-            $this->totalGral += $duty['precio'] * $value['cantidad'];
-            $duties[$value['id']] = [
-                "precio"        => $duty['precio'],
-                "cantidad"      => $value['cantidad'],
-                "total"         => $duty['precio'] * $value['cantidad'],
-            ];
-        }
+        $duties  = collect($request->derechos)->map(function ($duty){
+            $duty['total'] = $duty['precio'] * $duty['cantidad'];
+            $this->totalGral += $duty['precio'] * $duty['cantidad'];
+            return new OrderDuty($duty);
+        });
         $order = [
             'total' => $this->totalGral,
             'creator_id' => $user->id,
@@ -91,10 +92,10 @@ class OrderController extends Controller
 
         try {
             $order->save();
-            $order->duties()->sync($duties);
+            $order->duties()->saveMany($duties);
         } catch (\Throwable $th) {
             DB::rollBack();
-            abort(500, 'No se ha podido generar la orden, intentelo más tarde. '.$th);
+            abort(500, 'No se ha podido generar la orden, intentelo más tarde. '.$th->getMessage());
         }
         DB::commit();
 
@@ -114,18 +115,15 @@ class OrderController extends Controller
             $order->pagada      = $request->pagada ?? $order->pagada;
 
             if (!$order->validada) {
-                foreach ($request->derechos as $key => $value) {
-                    $duty = Duty::firstWhere('id', $value['id']);
-                    $this->totalGral += $duty['precio'] * $value['cantidad'];
-                    $duties[$value['id']] = [
-                        "precio"        => $duty['precio'],
-                        "cantidad"      => $value['cantidad'],
-                        "total"         => $duty['precio'] * $value['cantidad'],
-                    ];
-                }
+                OrderDuty::where('order_id', $order->id)->delete();
+                $duties  = collect($request->derechos)->map(function ($duty){
+                    $duty['total'] = $duty['precio'] * $duty['cantidad'];
+                    $this->totalGral += $duty['precio'] * $duty['cantidad'];
+                    return new OrderDuty($duty);
+                });
 
                 $order->total       = $this->totalGral;
-                $order->duties()->sync($duties);
+                $order->duties()->saveMany($duties);
             }
             $order->save();
         } catch (\Throwable $th) {
@@ -185,15 +183,24 @@ class OrderController extends Controller
         return response()->json($order, 200);
     }
 
-    public function validating(Request $request, License $license, Order $order)
+    public function validating(ValidateOrderRequest $request, License $license, Order $order)
     {
-        $department = LicenseType::find($license->license_type_id);
+        //? user with role jefeSDUMA is as super admin dont enter in validations
+        $this->authorize('validate', [Order::class, null, $license, $order, $request->contrasenia]);
 
-        $this->authorize('validate', [Order::class, $department->department_id, null, $order]);
+        $user = request()->user();
 
         DB::beginTransaction();
-
         try {
+            $event = event(new ApiOPQueried($user));
+
+            // $event[0] is an api token if user has role jefeSDUMA else is null
+            $user->api_op_token = $event[0];
+            $response = self::storeOrder($user, $license, $order);
+
+            $order->folio_api   = $response->folio;
+            $order->fecha_autorizacion = Carbon::now();
+            $order->hash = $response->signatura;
             $order->validada = true;
             $order->save();
 
@@ -201,12 +208,12 @@ class OrderController extends Controller
             $license->save();
         } catch (\Throwable $th) {
             DB::rollBack();
-            abort(500, 'No se ha eliminado la orden inténtalo más tarde. '. $th->getMessage());
+            abort(500, 'No se ha validado la orden inténtalo más tarde. '. $th->getMessage());
         }
 
         DB::commit();
 
-        return response()->json($order, 200);
+        return response()->json($response, 200);
     }
 
     public function order(License $license, Order $order)
@@ -232,9 +239,43 @@ class OrderController extends Controller
             'order'        => $order,
         ];
 
-        // logger($priorLicenses);
         $pdf = PDF::loadView('orders.order', $data);
         Storage::put("public/solicitantes/{$license->user_id}/licencias/{$license->id}/OC-{$license->folio}.pdf",$pdf->output());
         return $pdf->stream();
+    }
+
+    public function storeOrder(User $user, License $license, Order $order)
+    {
+        $token = $user->api_op_token;
+        $licType = $license->licenseType()->first();
+        $duties  = $order->duties()->get();
+        $data = [
+
+            'nombre' => $license->folio,
+            'descripcion' => $licType->nombre .' '. $licType->nota,
+            'id' => $duties->map(function ($duty){
+                return $duty->idCuenta;
+            })->toArray(),
+            'cantidad' => $duties->map(function ($duty){
+                return $duty->cantidad;
+            })->toArray(),
+            'monto' => $duties->map(function ($duty){
+                return $duty->monto;
+            })->toArray(),
+            'idexpress' => 2689
+        ];
+
+        logger($data);
+        $response = Http::withHeaders([
+                'Authorization' => "Bearer {$token}",
+            ])
+            ->acceptJson()
+            ->post('http://10.220.107.112/api/orden/store', $data);
+
+        logger($response);
+
+        abort_if(!$response->successful(),500,'Error de inserción (API), intentelo más tarde.');
+
+        return json_decode($response);
     }
 }

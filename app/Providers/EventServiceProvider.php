@@ -11,7 +11,9 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
+use App\Events\ApiOPQueried;
 use App\Events\RequestValidated;
+use App\Listeners\APIPOAuthentication;
 use App\Listeners\VerifyValidation;
 
 class EventServiceProvider extends ServiceProvider
@@ -28,6 +30,10 @@ class EventServiceProvider extends ServiceProvider
 
         RequestValidated::class => [
             VerifyValidation::class,
+        ],
+
+        ApiOPQueried::class => [
+            APIPOAuthentication::class,
         ],
 
     ];

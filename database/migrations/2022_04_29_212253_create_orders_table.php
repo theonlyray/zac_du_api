@@ -24,10 +24,15 @@ class CreateOrdersTable extends Migration
                 ->default(false);
             $table->boolean('pagada')
                 ->default(false);
+            $table->bigInteger('folio_api')
+                ->nullable();
+            $table->text('hash')
+                ->nullable();
             $table->timestamp('fecha_registro')
                 ->useCurrent();
             $table->timestamp('fecha_actualizacion')
                 ->useCurrent();
+            $table->date('fecha_autorizacion')->nullable();
             $table->foreignId('creator_id')
                 ->constrained('users');
             $table->foreignId('license_id')

@@ -307,7 +307,7 @@
             <table width="100%">
             <tr>
                 <td class="grande border"><b>CONCEPTO</b></td>
-                <td class="grande center border"><b>CLAVE</b></td>
+                <td class="grande center border"><b>CUENTA</b></td>
                 <td class="grande center border"><b>TARIFA</b></td>
                 <td class="grande center border"><b>CANTIDAD</b></td>
                 <td class="grande center border"><b>SUBTOTAL</b></td>
@@ -315,10 +315,10 @@
             @foreach($order->duties as $duty)
             <tr>
                 <td width="50%" class="grande border">{{ $duty->descripcion }}</td>
-                <td class="grande center border">{{ $duty->clave }}</td>
+                <td class="grande center border">{{ $duty->cuenta }}</td>
                 <td class="grande center border">{{ number_format($duty->precio,2) }}</td>
-                <td class="grande center border">{{ number_format($duty->pivot->cantidad,2) }}</td>
-                <td class="grande center border">{{ number_format($duty->pivot->total,2) }}</td>
+                <td class="grande center border">{{ number_format($duty->cantidad,2) }}</td>
+                <td class="grande center border">{{ number_format($duty->total,2) }}</td>
             </tr>
             @endforeach
             </table>
