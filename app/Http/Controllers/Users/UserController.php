@@ -41,9 +41,10 @@ class UserController extends Controller
 
         $users = $user->getUsersByRole($roleName);
 
-        if ($users->isNotEmpty()) return response()->json($users, 200);
+        abort_if($users->isEmpty(), 204, 'No se encontraron usuarios.');
 
-        abort(204, 'No se encontraron usuarios.');
+        return response()->json($users, 200);
+
     }
 
     public function show(User $user)
@@ -78,7 +79,7 @@ class UserController extends Controller
             $userToCreate->save();
             $userToCreate->assignRole($userDataToCreate['role_id']);
 
-            if ($request->department_id != 'null') {
+            if (!is_null($request->department_id)) {
                 $departmentUserData = [
                     'user_id' => $userToCreate->id,
                     'department_id' => $request->department_id,
@@ -86,7 +87,7 @@ class UserController extends Controller
                 $departmentUser = new DepartmentUser($departmentUserData);
                 $departmentUser->save();
             }
-            if ($request->college_id != 'null') {
+            if (!is_null($request->college_id)) {
                 $collegeUserData = [
                     'user_id' => $userToCreate->id,
                     'college_id' => $request->college_id,

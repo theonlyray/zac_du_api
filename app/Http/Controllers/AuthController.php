@@ -27,12 +27,6 @@ class AuthController extends Controller
 
         DB::beginTransaction();
 
-        // switch ($userData['role_id']) {
-        //     case 9: $role = 'dro'; break;
-        //     case 10: $role = 'particular'; break;
-        //     default: $role = 'particular';break;
-        // }
-
         try {
             $user->save();
 
@@ -57,7 +51,6 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(500,  $th .' No se ha realizar el registro, inténtalo más tarde');
-            // abort(400, $th);
         }
 
         DB::commit();
@@ -112,9 +105,9 @@ class AuthController extends Controller
     {
         $colleges = College::all();
 
-        if ($colleges->isNotEmpty()) return response()->json($colleges, 200);
+        abort_if($colleges->isEmpty(), 204, "No existen colegios.");
 
-        abort(204, "No hay colegios disponibles actualmente.");
+        return response()->json($colleges, 200);
     }
 
     public function getRoles(Request $request)
@@ -130,14 +123,12 @@ class AuthController extends Controller
             $roles = Role::whereIn('name', ['subDirectorCol', 'colaboradorCol'])->get();
         }else abort(403, "No tienes permisos para consultar esta información.");
 
-        if ($roles->isNotEmpty()){
-            $roles = $roles->map(function($role){
-                return $role->load('permissions');
-            });
-            return response()->json($roles, 200);
-        }
+        abort_if($roles->isEmpty(), 204, "No hay roles disponibles actualmente.");
 
-        abort(404, "No hay roles disponibles actualmente.");
+        $roles = $roles->map(function($role){
+            return $role->load('permissions');
+        });
+        return response()->json($roles, 200);
     }
 
     public function updateRole(Request $request, Role $role)
@@ -156,8 +147,8 @@ class AuthController extends Controller
 
         $permissions = Permission::all();
 
-        if ($permissions->isNotEmpty()) return response()->json($permissions, 200);
+        abort_if($permissions->isEmpty(),204, "No hay permisos actualmente.");
 
-        abort(204, "No hay permisos actualmente.");
+        return response()->json($permissions, 200);
     }
 }

@@ -48,18 +48,11 @@ class License extends Model
             case 2: return 'Docs. con Observaciones';
             case 3: return 'Docs. Corregidos';
             case 4: return 'Ingreso Validado';
-            case 5: return 'Validado Primer Revision';
-            case 6: return 'Observaciones Primer Revision';
-            case 7: return 'Validado Segunda Revision';
-            case 8: return 'Observaciones Segunda Revision';
-            case 9: return 'Validado Tercera Revision';
-            case 10: return 'Observaciones Tercera Revision';
-            case 11: return 'Por Pagar';
-            case 12: return 'Pagado';
-            case 13: return 'Proceso de Firmas';
-            case 14: return 'Autorizado';
-            case 15: return 'Cancelado';
-            case 16: return 'Rechazado';
+            case 5: return 'Docs y Planos Validados';
+            case 6: return 'Por Pagar';
+            case 7: return 'Autorizado';
+            case 8: return 'Cancelado';
+            case 9: return 'Rechazado';
             default: return 'Undefined';
         }
     }
@@ -151,6 +144,14 @@ class License extends Model
     }
 
     /**
+     * Get the stracutural safety associated with the license.
+     */
+    public function safety()
+    {
+        return $this->hasOne(StructuralSafetyCertificate::class);
+    }
+
+    /**
      * Get the requirements associated with the license.
      */
     public function requirements()
@@ -187,7 +188,7 @@ class License extends Model
      * @param User $user
      * @return object count for each status
      */
-    public static function counter($user)
+    public static function counter(User $user)
     {
         $result['Total'] = 0;
 
@@ -201,20 +202,19 @@ class License extends Model
             $result['Proceso'] =
             License::where([
                 ['estatus', '>=', 1],
-                ['estatus', '<=', 13],
+                ['estatus', '<=', 6],
                 // ['licenseType.department_id', $user->department[0]->id],
             ])->count();
 
             $result['Autorizadas'] =
-            License::where($gralWhereSentence(14))->count();
+            License::where($gralWhereSentence(7))->count();
 
             $result['Canceladas'] =
-            License::where($gralWhereSentence(15))->count();
+            License::where($gralWhereSentence(8))->count();
 
             $result['Rechazadas'] =
-            License::where($gralWhereSentence(16))->count();
-        }
-        else if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
+            License::where($gralWhereSentence(9))->count();
+        }else if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
             $gralWhereSentence = fn($status) =>
                 [
                     ['estatus', $status],
@@ -224,7 +224,7 @@ class License extends Model
             $result['Proceso'] =
             License::where([
                 ['estatus', '>=', 1],
-                ['estatus', '<=', 13],
+                ['estatus', '<=', 6],
                 // ['licenseType.department_id', $user->department[0]->id],
             ])
             ->whereHas('licenseType', function ($q) use($user){
@@ -232,24 +232,23 @@ class License extends Model
             })->count();
 
             $result['Autorizadas'] =
-            License::where($gralWhereSentence(14))
+            License::where($gralWhereSentence(7))
             ->whereHas('licenseType', function ($q) use($user){
                 $q->where('department_id',$user->department[0]->id);
             })->count();
 
             $result['Canceladas'] =
-            License::where($gralWhereSentence(15))
+            License::where($gralWhereSentence(8))
             ->whereHas('licenseType', function ($q) use($user){
                 $q->where('department_id',$user->department[0]->id);
             })->count();
 
             $result['Rechazadas'] =
-            License::where($gralWhereSentence(16))
+            License::where($gralWhereSentence(9))
             ->whereHas('licenseType', function ($q) use($user){
                 $q->where('department_id',$user->department[0]->id);
             })->count();
-        }
-        else if ($user->hasRole(['dro', 'particular'])) {
+        }else if ($user->hasRole(['dro', 'particular'])) {
             $gralWhereSentence = fn($status) =>
                 [
                     ['user_id', $user->id],
@@ -265,19 +264,19 @@ class License extends Model
                     [
                         ['user_id', $user->id],
                         ['estatus', '>=', 1],
-                        ['estatus', '<=', 13],
+                        ['estatus', '<=', 6],
                     ])->count();
 
             $result['Autorizadas'] =
-            License::where($gralWhereSentence(14))
+            License::where($gralWhereSentence(7))
                 ->count();
 
             $result['Canceladas'] =
-            License::where($gralWhereSentence(15))
+            License::where($gralWhereSentence(8))
                 ->count();
 
             $result['Rechazadas'] =
-            License::where($gralWhereSentence(16))
+            License::where($gralWhereSentence(9))
                 ->count();
 
             // $result['Corresponsabilidades'] =
@@ -289,6 +288,55 @@ class License extends Model
             //             ['estatus','=', 1],
             //         ])->count();
             $result['Total'] += $result['Solicitudes'];
+        }else if ($user->hasRole(['directorCol','subDirectorCol','colaboradorCol',]))
+        {
+            // logger($user->college[0]->id);
+            /**
+             *
+             *
+                return License::whereHas('applicant', function($q) use($collegeId){
+                    $q->where('college_id', $collegeId);
+                    })
+                    ->where([
+                        ['license_type_id',$typeLic],
+                        ['estatus',1],
+                    ])
+                    ->count();
+             *
+             */
+            $gralWhereSentence = fn($status) =>
+                [
+                    ['estatus', $status],
+                    // ['licenseType.department_id', $user->department[0]->id],
+                ];
+
+            $result['Proceso'] =
+            License::where([
+                ['estatus', '>=', 1],
+                ['estatus', '<=', 6],
+                // ['licenseType.department_id', $user->department[0]->id],
+            ])
+            ->whereHas('applicant.college', function ($q) use($user){
+                $q->where('college_users.college_id',$user->college[0]->id);
+            })->count();
+
+            $result['Autorizadas'] =
+            License::where($gralWhereSentence(7))
+            ->whereHas('applicant.college', function ($q) use($user){
+                $q->where('college_users.college_id',$user->college[0]->id);
+            })->count();
+
+            $result['Canceladas'] =
+            License::where($gralWhereSentence(8))
+            ->whereHas('applicant.college', function ($q) use($user){
+                $q->where('college_users.college_id',$user->college[0]->id);
+            })->count();
+
+            $result['Rechazadas'] =
+            License::where($gralWhereSentence(9))
+            ->whereHas('applicant.college', function ($q) use($user){
+                $q->where('college_users.college_id',$user->college[0]->id);
+            })->count();
         }
 
         $result['Total'] += $result['Proceso'] + $result['Autorizadas'] + $result['Canceladas'] + $result['Rechazadas'];
@@ -305,9 +353,9 @@ class License extends Model
     {
         switch ($status) {
             case 'Solicitudes': $statusInt = 0; break;
-            case 'Autorizadas': $statusInt = 14; break;
-            case 'Canceladas':  $statusInt = 15; break;
-            case 'Rechazadas':  $statusInt = 16; break;
+            case 'Autorizadas': $statusInt = 7; break;
+            case 'Canceladas':  $statusInt = 8; break;
+            case 'Rechazadas':  $statusInt = 9; break;
 
             default: $statusInt = 0; break;
         }
@@ -333,20 +381,22 @@ class License extends Model
             ];
 
             if ($status === 'Proceso') {
-                return License::where(
+                $licenses = License::where(
                     [
                         ['estatus', '>=', 1],
-                        ['estatus', '<=', 13],
+                        ['estatus', '<=', 6],
                         // ['licenseType.department_id', $user->department[0]->id],
                     ]
                 )->with($withArray)
                 ->orderBy('licenses.id','desc')
                 ->get();
+                return self::sorter($licenses);
             }
-            return License::where($gralWhereSentence())
+            $licenses = License::where($gralWhereSentence())
                 ->with($withArray)
                 ->orderBy('licenses.id','desc')
                 ->get();
+            return self::sorter($licenses);
         }
         else if ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
             $gralWhereSentence = fn() =>
@@ -370,10 +420,10 @@ class License extends Model
             ];
 
             if ($status === 'Proceso') {
-                return License::where(
+                $licenses = License::where(
                     [
                         ['estatus', '>=', 1],
-                        ['estatus', '<=', 13],
+                        ['estatus', '<=', 6],
                         // ['licenseType.department_id', $user->department[0]->id],
                     ]
                 )->whereHas('licenseType', function ($q) use($user){
@@ -382,16 +432,64 @@ class License extends Model
                 ->with($withArray)
                 ->orderBy('licenses.id','desc')
                 ->get();
+                return self::sorter($licenses);
             }
-            return License::where($gralWhereSentence())
+            $licenses = License::where($gralWhereSentence())
                 ->whereHas('licenseType', function ($q) use($user){
                     $q->where('department_id',$user->department[0]->id);
                 })
                 ->with($withArray)
                 ->orderBy('licenses.id','desc')
                 ->get();
+
+            return self::sorter($licenses);
         }
-        else if ($user->hasRole(['dro', 'particular'])) {
+        else if ($user->hasRole(['directorCol','subDirectorCol','colaboradorCol',])) {
+            $gralWhereSentence = fn() =>
+            [
+                ['estatus', $statusInt],
+                // ['licenseType.department_id', $user->department[0]->id],
+            ];
+
+            $withArray = [
+                'applicant.applicantData',
+                'licenseType',
+                'property',
+                'construction',
+                'owner',
+                'validity',
+                'validations',
+                'observations',
+                'ad',
+                'backgrounds',
+                'order'
+            ];
+
+            if ($status === 'Proceso') {
+                $licenses = License::where(
+                    [
+                        ['estatus', '>=', 1],
+                        ['estatus', '<=', 6],
+                        // ['licenseType.department_id', $user->department[0]->id],
+                    ]
+                )->whereHas('applicant.college', function ($q) use($user){
+                    $q->where('college_users.college_id',$user->college[0]->id);
+                })
+                ->with($withArray)
+                ->orderBy('licenses.id','desc')
+                ->get();
+                return self::sorter($licenses);
+            }
+            $licenses = License::where($gralWhereSentence())
+                ->whereHas('applicant.college', function ($q) use($user){
+                    $q->where('college_users.college_id',$user->college[0]->id);
+                })
+                ->with($withArray)
+                ->orderBy('licenses.id','desc')
+                ->get();
+
+            return self::sorter($licenses);
+        }else if ($user->hasRole(['dro', 'particular'])) {
             $gralWhereSentence = fn() =>
             [
                 ['user_id', $user->id],
@@ -412,20 +510,39 @@ class License extends Model
             ];
 
             if ($status === 'Proceso') {
-                return License::where(
+                $licenses = License::where(
                     [
                         ['user_id', $user->id],
                         ['estatus', '>=', 1]
                     ]
-                )->where('estatus', '<=', 13)
+                )->where('estatus', '<=', 6)
                 ->with($withArray)
-                ->orderBy('licenses.fecha_actualizacion','desc')
                 ->get();
+
+                return self::sorter($licenses);
             }
-            return License::where($gralWhereSentence())
+            $licenses = License::where($gralWhereSentence())
                 ->with($withArray)
                 ->orderBy('licenses.id','desc')
                 ->get();
+
+            //? $statusInt 0 request without folio
+            return $statusInt == 0 ? $licenses : self::sorter($licenses);
         }
+    }
+
+    /**
+    *  Sort licenses by folio,
+    * explode folio and take the second value, int, to sort it
+    *@param collect licenses to sort
+    *@return collect licenses sorted by folio
+    */
+    static public function sorter($licenses)
+    {
+        $sorted = $licenses->sortBy(function ($license, $key) {
+            $folioArray = explode('-',$license->folio);
+            return $folioArray[1];
+        });
+        return collect($sorted->reverse()->values()->all());
     }
 }

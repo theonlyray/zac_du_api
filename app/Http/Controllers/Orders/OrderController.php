@@ -17,6 +17,7 @@ use App\Models\LicenseType;
 use App\Models\Order;
 use App\Models\OrderDuty;
 use App\Models\User;
+use App\Services\CheckLicenseType;
 use App\Services\StorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -29,11 +30,12 @@ class OrderController extends Controller
 {
     protected $totalGral;
     protected $storage;
-
+    protected $checkLicenseType;
     public function __construct(StorageService $storage)
     {
         $this->storage = $storage;
         $this->totalGral = 0;
+        $this->checkLicenseType = new CheckLicenseType();
     }
 
     public function index(License $license)
@@ -213,7 +215,7 @@ class OrderController extends Controller
 
         DB::commit();
 
-        return response()->json($response, 200);
+        return response()->json($order, 200);
     }
 
     public function order(License $license, Order $order)
@@ -236,7 +238,7 @@ class OrderController extends Controller
             'license'       => $license,
             'applicant'     => $applicant[0],
             'applicantData' => $applicantData[0],
-            'order'        => $order,
+            'order'         => self::setConceptDescription($license, $order),
         ];
 
         $pdf = PDF::loadView('orders.order', $data);
@@ -248,10 +250,12 @@ class OrderController extends Controller
     {
         $token = $user->api_op_token;
         $licType = $license->licenseType()->first();
+        $owner   = $license->owner()->first();
         $duties  = $order->duties()->get();
+
         $data = [
 
-            'nombre' => $license->folio,
+            'nombre' => $owner->nombre_apellidos,
             'descripcion' => $licType->nombre .' '. $licType->nota,
             'id' => $duties->map(function ($duty){
                 return $duty->idCuenta;
@@ -265,17 +269,86 @@ class OrderController extends Controller
             'idexpress' => 2689
         ];
 
-        logger($data);
         $response = Http::withHeaders([
                 'Authorization' => "Bearer {$token}",
             ])
             ->acceptJson()
             ->post('http://10.220.107.112/api/orden/store', $data);
 
-        logger($response);
 
         abort_if(!$response->successful(),500,'Error de inserción (API), intentelo más tarde.');
 
         return json_decode($response);
+    }
+
+    private function setConceptDescription(License $license, $order)
+    {
+
+        $licenseType = $this->checkLicenseType->checkLicenseType($license->license_type_id);
+
+
+        switch ($licenseType){
+            case 'construction':
+                $months = self::calculateMonths($license);
+                $order['duties']->map(function ($duty) use($license, $months){
+                    if($duty->idCuenta == 155){
+                        $duty->descripcion .= ' '.$license->construction->sup_total_amp_reg_const.' m2, '. $months. ' meses de duración; Ubicado en '.
+                        $license->property->calle.' '.$license->property->no.', '.$license->property->colonia;
+                    }
+                });
+                break;
+            case 'compatibility':
+                $order['duties']->map(function ($duty) use($license){
+                    if($duty->idCuenta == 63){
+                        $duty->descripcion .= ' Ubicado en '.
+                        $license->property->calle.' '.$license->property->no.', '.$license->property->colonia;
+                    }
+                });
+                break;
+            case 'ad':
+                $months = self::calculateMonths($license);
+                $order['duties']->map(function ($duty) use($license, $months){
+                    if($duty->idCuenta == 13){
+                        $duty->descripcion .= ' '.$months. ' meses de duración; Ubicado en '.
+                        $license->property->calle.' '.$license->property->no.', '.$license->property->colonia;
+                    }
+                });
+                break;
+            case 'vehicle_ad':
+                $months = self::calculateMonths($license);
+                $order['duties']->map(function ($duty) use($license, $months){
+                    if($duty->idCuenta == 13){
+                        $duty->descripcion .= ' '.$months. ' meses de duración.';
+                    }
+                });
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
+
+
+        return $order;
+    }
+
+    /**
+     * calculate the number of months for the license validity
+     * @param License $license
+     * @return int
+     */
+    public function calculateMonths(License $license)
+    {
+        $ts1 = strtotime($license->validity['fecha_autorizacion']);
+        $ts2 = strtotime($license->validity['fecha_fin_vigencia']);
+
+        $year1 = date('Y', $ts1);
+        $year2 = date('Y', $ts2);
+
+        $month1 = date('m', $ts1);
+        $month2 = date('m', $ts2);
+
+        return (($year2 - $year1) * 12) + ($month2 - $month1);
     }
 }

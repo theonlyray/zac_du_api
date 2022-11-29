@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Departments\DepartmentController;
 use App\Http\Controllers\Files\FileController;
 use App\Http\Controllers\Duties\DutyController;
+use App\Http\Controllers\LandUses\LandUsesController;
+use App\Http\Controllers\LandUses\LandUsesDescriptionsController;
 use App\Http\Controllers\Licenses\LicenseController;
 use App\Http\Controllers\Licenses\LicenseTypeController;
 use App\Http\Controllers\Orders\OrderController;
@@ -39,10 +41,11 @@ Route::prefix('autenticacion')->group(function () {
     // Route::post('/recuperacion', [AuthController::class, 'resetPassword']);
 });
 
+
 /**
- * Payments routes
+ * Payments routes bank integration
  */
-Route::apiResource('/pagos', PaymentController::class);
+Route::post('/pagos', [PaymentController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -62,12 +65,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/', [ProfileController::class, 'update']);
         Route::patch('/especialidades', [ProfileController::class, 'specialties']);
     });
-
-    /**
-     * Specialties routes
-     */
-    Route::apiResource('especialidades', SpecialtyController::class)
-        ->parameters(['especialidades' => 'specialty']);
 
     /**
      * Deparments routes
@@ -114,15 +111,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/{user}/permisos', [UserController::class, 'permissions']);
     });
 
-    /**
-     * Properties routes
-     */
-    Route::apiResource('predios', PropertyController::class)
-        ->parameters(['predios' => 'property']);
-
-    Route::prefix('predios')->group(function () {
-        Route::get('/usuarios/{user}', [PropertyController::class, 'getByUser']);
-    });
 
     /**
      * Licenses routes
@@ -142,8 +130,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{license}/antecendente/{background}', [LicenseController::class, 'background']);
         Route::patch('/{license}/validaciones', [LicenseController::class, 'validations']);
         Route::patch('/{license}/observaciones', [LicenseController::class, 'observations']);
-        Route::get('/{license}/licencia', [PdfController::class, 'pdf_licencia']);
         Route::post('/{license}/sublicencia', [LicenseController::class, 'sublicense']);
+        Route::get('/{license}/licencia', [PdfController::class, 'license']);
+        Route::get('/{license}/preview', [PdfController::class, 'preview']);
+        Route::get('/{license}/solicitud', [PdfController::class, 'request']);
     });
 
     /**
@@ -162,4 +152,20 @@ Route::middleware('auth:sanctum')->group(function () {
         'orden'     => 'order',
     ]);
 
+    /**
+     * Payments routes
+     */
+    Route::patch('/pagos', [PaymentController::class, 'syncOrders']);
+
+    /**
+     * Land Uses routes
+     */
+    Route::apiResource('usos', LandUsesController::class)
+        ->parameters(['usos' => 'landUse']);
+
+    Route::apiResource('usos.descripcion', LandUsesDescriptionsController::class)
+    ->parameters([
+        'usos'          => 'landUse',
+        'descripcion'   => 'description',
+    ]);
 });

@@ -38,7 +38,9 @@ class LicensePolicy
             if (!$user->hasRole(['dro','particular'])) {
                 //?set in an array departmentIds
                 $userDepartmentIds = $user->department->pluck('id')->toArray();
-                if (!in_array(LicenseType::find($licenseData->license_type_id)->department_id, $userDepartmentIds)) $this->flagDepartment = false;
+                if (!$user->hasRole(['directorCol','subDirectorCol','colaboradorCol']) &&
+                    !in_array(LicenseType::find($licenseData->license_type_id)->department_id, $userDepartmentIds))
+                    $this->flagDepartment = false;
             }else {
                 $licenseData->user_id <> $user->id ? $this->flagOwner = false : null;
             }

@@ -18,7 +18,7 @@ class AdDescription extends Model
     ];
 
     protected $casts = [
-        'colocacion' => 'boolean',
+        // 'colocacion' => 'boolean',
         'cantidad' => 'integer',
         'largo' => 'double',
         'ancho' => 'double',

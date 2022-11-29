@@ -50,7 +50,10 @@ class File extends Model
     public static function getFilesByRole(User $user)
     {
         if ($user->hasRole(['jefeSDUMA'])) {
-            return File::all();
+            return File::where([
+                ['para', '<>', null],
+                ['college_id', null],
+            ])->get();
         }
         elseif ($user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
             return File::where([
@@ -65,7 +68,10 @@ class File extends Model
             ])->get();
         }elseif ($user->hasRole(['dro'])) {
             return File::where('para', true)
-                ->with('college')->get();
+                ->where('college_id', $user->college[0]->id)
+                ->orWhere('college_id', null)
+                // ->with('college')
+                ->get();
         }elseif ($user->hasRole(['particular'])) {
             return File::where('para', false)->get();
         }

@@ -23,9 +23,9 @@ class RequirementController extends Controller
             $request->user()
         );
 
-        if (!empty($requirements)) return response()->json($requirements, 200);
+        abort_if(empty($requirements), 204, 'No se encontraron requisitos.');
 
-        abort(204, 'No se encontraron requisitos.');
+        return response()->json($requirements, 200);
     }
 
     public function show(Requirement $requirement)

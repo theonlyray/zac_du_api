@@ -29,7 +29,7 @@ class Order extends Model
         'fecha_autorizacion' => 'datetime',
         'pagada' => 'boolean',
         'validada' => 'boolean',
-        'total' => 'float',
+        'total' => 'decimal:2',
         // 'duties.cantidad' => 'double',
     ];
 

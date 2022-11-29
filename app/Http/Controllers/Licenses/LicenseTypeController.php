@@ -21,9 +21,9 @@ class LicenseTypeController extends Controller
             request()->user()
         );
 
-        if (!empty($licenseType)) return response()->json($licenseType, 200);
+        abort_if(empty($licenseType),204, 'No se encontraron tipos de licencia.');
 
-        abort(204, 'No se encontraron tipos de licencia.');
+        return response()->json($licenseType, 200);
     }
 
     public function show(LicenseType $licenseType)

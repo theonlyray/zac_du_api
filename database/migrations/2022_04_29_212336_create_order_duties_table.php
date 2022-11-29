@@ -16,6 +16,7 @@ class CreateOrderDutiesTable extends Migration
         Schema::create('order_duties', function (Blueprint $table) {
             $table->id();
             $table->decimal('precio', $precision = 8, $scale = 2);
+            $table->decimal('monto', $precision = 8, $scale = 2);
             $table->decimal('cantidad', $precision = 8, $scale = 2);
             $table->decimal('total', $precision = 8, $scale = 2);
             $table->bigInteger('cuenta');

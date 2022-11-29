@@ -39,7 +39,7 @@ class APIPOAuthentication
         abort_if(!$response->successful(),500,'Error de autenticacion (API), intentelo más tarde.');
         $response = (json_decode($response));
 
-        if (!$user->hasRole(['jefeSDUMA'])){
+        if (!is_null($user) && $user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])){
             $depData = DepartmentUser::firstWhere('user_id', $user->id);
             $depData->fill(['api_op_token' =>$response->token]);
             $depData->save();

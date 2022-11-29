@@ -30,13 +30,5 @@ class UnitUserSeeder extends Seeder
             "user_id" => 10,
             "unit_id" => 2,
         ]);
-        UnitUser::create([
-            "user_id" => 14,
-            "unit_id" => 3,
-        ]);
-        UnitUser::create([
-            "user_id" => 15,
-            "unit_id" => 3,
-        ]);
     }
 }

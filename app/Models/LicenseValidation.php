@@ -15,6 +15,7 @@ class LicenseValidation extends Model
         'descripcion',
         'user_id',
         'license_id',
+        'created_at'
     ];
 
     protected $casts = [

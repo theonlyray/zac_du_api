@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
         $this->call(SpecialtySeeder::class);
         $this->call(UnitSeeder::class);
         $this->call(UnitUserSeeder::class);
+        $this->call(LandUseSeeder::class);
+        $this->call(LandUseDescriptionSeeder::class);
 
         // ? create 50 new ramdom duties
         \App\Models\Duty::factory(50)->create();

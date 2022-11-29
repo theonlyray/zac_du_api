@@ -12,8 +12,10 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Event;
 
 use App\Events\ApiOPQueried;
+use App\Events\PaidLicense;
 use App\Events\RequestValidated;
 use App\Listeners\APIPOAuthentication;
+use App\Listeners\SignLicense;
 use App\Listeners\VerifyValidation;
 
 class EventServiceProvider extends ServiceProvider
@@ -34,6 +36,10 @@ class EventServiceProvider extends ServiceProvider
 
         ApiOPQueried::class => [
             APIPOAuthentication::class,
+        ],
+
+        PaidLicense::class => [
+            SignLicense::class,
         ],
 
     ];

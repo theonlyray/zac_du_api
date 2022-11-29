@@ -22,9 +22,5 @@ class UnitSeeder extends Seeder
             'nombre' => 'Unidad No. 2.1',
             'department_id' => 2,
         ]);
-        Unit::create([
-            'nombre' => 'Unidad No. 3.1',
-            'department_id' => 3,
-        ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Licenses;
 
+use App\Services\CheckLicenseType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -9,6 +10,12 @@ use Illuminate\Validation\Rule;
 
 class StoreLicenseRequest extends FormRequest
 {
+    protected $checkLicenseType;
+
+    public function __construct()
+    {
+        $this->checkLicenseType = new CheckLicenseType();
+    }
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,6 +35,16 @@ class StoreLicenseRequest extends FormRequest
     {
         $minConstValue = self::setMinConstValue();
         $maxConstValue = self::setMaxConstValue();
+
+        $isConstruction = $this->checkLicenseType->isConstruction(
+            $this->input('license_type_id')
+        );
+
+        $isAd = $this->checkLicenseType->isAd(
+            $this->input('license_type_id')
+        );
+
+
         return [
             'license_type_id'   => 'required|integer|exists:license_types,id',
             // 'property_id'       => 'required|integer|exists:properties,id',
@@ -48,7 +65,7 @@ class StoreLicenseRequest extends FormRequest
             'property.longitud'          => 'sometimes|string',
             'property.mapa'              => 'sometimes|string',
 
-            'backgrounds'                      => [Rule::requiredIf(self::isConstruction())],
+            'backgrounds'                      => [Rule::requiredIf($isConstruction)],
             'backgrounds.data.*.prior_license_id'           =>
                 [Rule::requiredIf(is_null($this->input('backgrounds.data.*.physical_prior_license_id'))),'nullable','integer','exists:licenses,id'],//? digital background
             'backgrounds.data.*.physical_prior_license_id'  =>
@@ -56,7 +73,7 @@ class StoreLicenseRequest extends FormRequest
             'backgrounds.data.*.fecha'  =>
                 [Rule::requiredIf(is_null($this->input('backgrounds.data.*.prior_license_id'))),'nullable','date'],//?required if is physical background
 
-            'construction'                      => [Rule::requiredIf(self::isConstruction()),'nullable','array'],
+            'construction'                      => [Rule::requiredIf($isConstruction),'nullable','array'],
             'construction.sotano'                    => 'sometimes|numeric|min:0',
             'construction.planta_baja'               => 'sometimes|numeric|min:0',
             'construction.mezzanine'                 => 'sometimes|numeric|min:0',
@@ -71,7 +88,7 @@ class StoreLicenseRequest extends FormRequest
             'construction.descripcion'               => 'sometimes|string',
 
             //?owner data is required for dros, if user is particular, the owner's data will be those of the user himself
-            'owner'                   => [Rule::requiredIf(self::isConstruction()), 'array'],
+            'owner'                   => [Rule::requiredIf($isConstruction), 'array'],
             // 'required_if:propietario.ownerFlag,flase|array',
             'owner.nombre_apellidos'  => 'sometimes|string',
             'owner.rfc'               => 'sometimes|string',
@@ -79,9 +96,9 @@ class StoreLicenseRequest extends FormRequest
             'owner.ocupacion'         => 'sometimes|string',
             'owner.telefono'          => 'sometimes|string',
 
-            'ad' => [Rule::requiredIf(self::isAd()), 'array', 'nullable'],
-            'ad.colocacion'    => [Rule::requiredIf(self::isAd()), 'boolean'],
-            'ad.tipo'          => [Rule::requiredIf(self::isAd()), 'string'],
+            'ad' => [Rule::requiredIf($isAd), 'array', 'nullable'],
+            'ad.colocacion'    => [Rule::requiredIf($isAd), 'string'],
+            'ad.tipo'          => [Rule::requiredIf($isAd), 'string'],
             'ad.cantidad'      => 'integer|sometimes|nullable',
             'ad.largo'         => 'numeric|sometimes|min:0|nullable',
             'ad.ancho'         => 'numeric|sometimes|min:0|nullable',
@@ -95,6 +112,9 @@ class StoreLicenseRequest extends FormRequest
             // 'boundaries.descripcion'    => 'string|required|nullable',
             // 'compatibilidad.ubicacion'  => 'string|required|nullable',
 
+            'safety' => [Rule::requiredIf($this->input('license_type_id') == 14), 'array'],
+            'safety.destino'  => 'integer',
+
             'uses' => [Rule::requiredIf($this->input('license_type_id') == 16), 'array'],
             'uses.medidas_colindancia'    => 'string|sometimes',
             'uses.uso_actual'             => 'string|sometimes',
@@ -104,6 +124,11 @@ class StoreLicenseRequest extends FormRequest
             's_f_d.descripcion'               => 'string|sometimes|nullable',
             's_f_d.medidas_colindancia'       => 'string|sometimes|nullable',
             // 'compatibilidad.m2_ocupacion'   => 'numeric|sometimes|nullable',
+
+            'validity'                      => 'sometimes|nullable',
+            'validity.fecha_autorizacion'   => 'sometimes|date|nullable',
+            'validity.fecha_fin_vigencia'   => 'sometimes|date|nullable',
+            'validity.dias_total'           => 'sometimes|int|nullable',
         ];
     }
 

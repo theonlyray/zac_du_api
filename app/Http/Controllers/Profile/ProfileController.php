@@ -59,22 +59,4 @@ class ProfileController extends Controller
 
         return response()->json($user->load([ 'roles', 'applicantData', 'college', 'specialties', 'department' ]), 200);
     }
-
-    public function specialties(UpdateSpecialtiesRequest $request)
-    {
-        $user = $request->user();
-
-        foreach ($request->especialidades as $key => $value) {
-            $especialidades[$value['speciality_id']] = ['no_registro' => $value['no_registro'], 'validado' => $value['validado']];
-        }
-        $user->specialties()->sync($especialidades);
-        //? log guardado manualmente
-        activity('Especialidades de Usuario')
-            ->causedBy($user)
-            ->performedOn($user)
-            ->event('updated')
-            ->log("EL usuario {$user->nombre}, actualizo sus especialidades.");
-
-        return response()->json($user->specialties()->get(), 200);
-    }
 }

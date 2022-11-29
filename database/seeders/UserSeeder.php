@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
         ])->assignRole('colaboradorDpt');
 
 
-        //colegio ing
+        //colegio ing 12
         User::create([
             "nombre" => "Dir Colegio Ing",
             "correo" => "dir_col_ing@gmail.com",
@@ -95,7 +95,7 @@ class UserSeeder extends Seeder
             "correo" => "col_2_col_ing@gmail.com",
             "contrasenia" => Hash::make("password"),
         ])->assignRole('colaboradorCol');
-        //colegio ing
+        //colegio ing 16
         User::create([
             "nombre" => "Dir Colegio Arq",
             "correo" => "dir_col_arq@gmail.com",
@@ -103,7 +103,7 @@ class UserSeeder extends Seeder
         ])->assignRole('directorCol');
 
 
-        User::create([
+        User::create([//17
             "nombre" => "DRO Francisco",
             "correo" => "fcarrilloaparicio@gmail.com",
             "contrasenia" => Hash::make("password"),

@@ -268,7 +268,8 @@
                       PRESENTE.
                     </span><br>
                     <b style="font-size:13px;">
-                      Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">OC-{{ $license->folio }}</span>
+                      {{--  Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">OC-{{ $license->folio }}</span>  --}}
+                      Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">101</span>
                     </b>
                   </div>
                 </div>
@@ -336,11 +337,15 @@
               </div>
               <table width="100%">
                 <tr>
-                  <td class="grande">Propietario: <b>{{ $license->owner->nombre_apellidos }}</b></td>
+                    @if(!is_null($license->owner))
+                        <td class="grande">Propietario: <b>{{ $license->owner->nombre_apellidos }}</b></td>
+                    @endif
                 </tr>
                 <tr>
                   <td class="grande">Domicilio: <b>
-                    {{ $license->property->calle }} {{ $license->property->no }}, {{ $license->property->colonia }}</b></td>
+                    @if(!is_null($license->property))
+                        {{ $license->property->calle }} {{ $license->property->no }}, {{ $license->property->colonia }}</b></td>
+                    @endif
                 </tr>
               </table>
             </div>
