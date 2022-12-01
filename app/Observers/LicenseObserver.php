@@ -19,7 +19,8 @@ class LicenseObserver
     {
         $year = Carbon::now()->year;
         if (! \App::runningInConsole()) {
-            $counter = License::where('estatus','<>',0)->count('id')+1;
+            //?foleado para prorrogas, terminaciones
+            $counter = License::where('estatus','<>',0)->count('id');
             // $license->id
             if ($license->license_type_id == 6) $license->folio  = "PRO-{$counter}-{$year}";
             else if ($license->license_type_id == 23) $license->folio  = "TER-{$counter}-{$year}";
@@ -30,6 +31,7 @@ class LicenseObserver
 
     public function updating(License $license)
     {
+        //?foleado gral
         $counter = License::where('estatus', '<>', 0)->count('id')+1;
         $year    = Carbon::now()->year;
         $acronym = self::setFolio($license);

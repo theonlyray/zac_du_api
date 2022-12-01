@@ -38,6 +38,12 @@ class CreatePropertiesTable extends Migration
             $table->double('sup_no_construida')
                 ->default(0.0)
                 ->nullable();
+            $table->boolean('agua')
+                ->default(false);
+            $table->boolean('luz')
+                ->default(false);
+            $table->boolean('drenaje')
+                ->default(false);
             $table->decimal('latitud', 10,7)
                 ->default(22.7743376);
             $table->decimal('longitud', 11,7)
@@ -46,6 +52,8 @@ class CreatePropertiesTable extends Migration
                 ->nullable();
             $table->string('mapa_url', 180)
                 ->nullable();
+            $table->string('poligono', 80)
+                ->default('Colonias Populares');
             // $table->string('croquis_ubicacion', 180)
             //     ->nullable();
             // $table->string('croquis_url', 180)

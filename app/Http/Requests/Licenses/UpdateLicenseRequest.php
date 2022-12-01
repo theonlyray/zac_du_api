@@ -31,22 +31,23 @@ class UpdateLicenseRequest extends FormRequest
             // 'folio'             => 'required|string',
             'license_type_id'   => 'required|integer',
 
-            'property'            => 'required|array',
-            'property.calle'      => 'required|string',
-            'property.no'         => 'required|string',
-            'property.colonia'    => 'required|string',
+            'property'            => 'sometimes|array|nullable',
+            'property.calle'      => 'sometimes|string|nullable',
+            'property.no'         => 'sometimes|string|nullable',
+            'property.colonia'    => 'sometimes|string|nullable',
             'property.seccion'    => 'sometimes|string|nullable',
             'property.manzana'    => 'sometimes|string|nullable',
             'property.lote'       => 'sometimes|string|nullable',
             'property.no_predial' => 'sometimes|string|nullable',
             'property.clave_catastral'   => 'sometimes|string|nullable',
-            'property.sup_terreno'       => 'sometimes|numeric',
-            'property.sup_construida'    => 'sometimes|numeric',
-            'property.sup_no_construida' => 'sometimes|numeric',
-            'property.latitud'           => 'required|string',
-            'property.longitud'          => 'required|string',
+            'property.sup_terreno'       => 'sometimes|numeric|nullable',
+            'property.sup_construida'    => 'sometimes|numeric|nullable',
+            'property.sup_no_construida' => 'sometimes|numeric|nullable',
+            'property.latitud'           => 'sometimes|string|nullable',
+            'property.longitud'          => 'sometimes|string|nullable',
 
-            'backgrounds'                      => [Rule::requiredIf(self::isConstruction())],
+            'backgrounds'                      => ['array', 'nullable'],
+            // 'backgrounds'                      => ['array', 'nullable', Rule::requiredIf(self::isConstruction()),],
             'backgrounds.data.*.prior_license_id'           =>
                 [Rule::requiredIf(is_null($this->input('backgrounds.data.*.physical_prior_license_id'))),'nullable','integer','exists:licenses,id'],//? digital background
             'backgrounds.data.*.physical_prior_license_id'  =>
@@ -78,7 +79,7 @@ class UpdateLicenseRequest extends FormRequest
             'owner.telefono'          => 'sometimes|string',
 
             'ad' => [Rule::requiredIf(self::isAd()), 'array', 'nullable'],
-            'ad.colocacion'    => [Rule::requiredIf(self::isAd()), 'boolean'],
+            'ad.colocacion'    => [Rule::requiredIf(self::isAd()), 'string'],
             'ad.tipo'          => [Rule::requiredIf(self::isAd()), 'string'],
             'ad.cantidad'      => 'integer|sometimes|nullable',
             'ad.largo'         => 'numeric|sometimes|min:0|nullable',
@@ -89,12 +90,17 @@ class UpdateLicenseRequest extends FormRequest
             'ad.fecha_inicio'  => 'date|sometimes|nullable',
             'ad.fecha_fin'     => 'date|sometimes|nullable',
 
+            'safety' => [Rule::requiredIf($this->input('license_type_id') == 14), 'array', 'nullable'],
+            'safety.destino'  => 'integer',
+
             'compatibility_certificate' => [Rule::requiredIf($this->input('license_type_id') == 16), 'array', 'nullable'],
+            'compatibility_certificate.land_use_id'            => 'integer|sometimes',
+            'compatibility_certificate.land_use_description_id'=> 'integer|sometimes',
             'compatibility_certificate.medidas_colindancia'    => 'string|sometimes',
             'compatibility_certificate.uso_actual'             => 'string|sometimes',
             'compatibility_certificate.uso_propuesto'          => 'string|sometimes',
 
-            's_f_d' => [Rule::requiredIf($this->input('license_type_id') == 22), 'array'],
+            's_f_d' => [Rule::requiredIf($this->input('license_type_id') == 22), 'array', 'nullable'],
             's_f_d.descripcion'               => 'string|sometimes|nullable',
             's_f_d.medidas_colindancia'       => 'string|sometimes|nullable',
             // 'compatibilidad.m2_ocupacion'   => 'numeric|sometimes|nullable',
@@ -111,7 +117,11 @@ class UpdateLicenseRequest extends FormRequest
      */
     public function isConstruction()
     {
-        return $this->input('license_type_id') >= 1 && $this->input('license_type_id') <= 3;
+        //? numbers in db, id license type
+        return $this->input('license_type_id') >= 1 && $this->input('license_type_id') <= 6 ||
+        ($this->input('license_type_id') >= 8 && $this->input('license_type_id') <= 11) ||
+        ($this->input('license_type_id') == 15) ||
+        ($this->input('license_type_id') >= 25 && $this->input('license_type_id') <= 28);
     }
 
     /**

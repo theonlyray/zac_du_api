@@ -480,7 +480,7 @@
         SOLICITEN </b>
     </div>
     <br>
-    <div class="row center">
+    {{--  <div class="row center">
       <b> AUTORIZACIÓN</b>
     </div>
     <br><br><br><br>
@@ -496,10 +496,10 @@
       <tr>
         <td class="center" style="font-size:11px;" width="50%">JUNTA DE PROTECCIÓN Y CONSERVACIÓN <br>
           DE MONUMENTOS</td>
-        <td class="center" style="font-size:11px;" width="50%">ARQ. CARLA DANIELA MALDONADO RIOS <br>
+        <td class="center" style="font-size:11px;" width="50%">{{ $dirSDUMA->nombre }} <br>
           SCRETARIO DE DESARROLLO URBANO Y MEDIO AMBIENTE</td>
       </tr>
-    </table>
+    </table>  --}}
     <div class="page-break"></div>
     <div class="row center">
       <b>SUPERFICIE POR CONSTRUIR O REGULARIZAR M2</b>

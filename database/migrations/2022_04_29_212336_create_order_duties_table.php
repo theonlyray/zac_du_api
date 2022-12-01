@@ -16,13 +16,17 @@ class CreateOrderDutiesTable extends Migration
         Schema::create('order_duties', function (Blueprint $table) {
             $table->id();
             $table->decimal('precio', $precision = 8, $scale = 2);
+            $table->decimal('monto', $precision = 8, $scale = 2);
             $table->decimal('cantidad', $precision = 8, $scale = 2);
             $table->decimal('total', $precision = 8, $scale = 2);
+            $table->bigInteger('cuenta');
+            $table->string('descripcion',255);
+            $table->bigInteger('idCuenta');
             $table->foreignId('order_id')
                 ->constrained('orders')
                 ->onDelete('cascade');
-            $table->foreignId('duty_id')
-                ->constrained('duties');
+            // $table->foreignId('duty_id')
+            //     ->constrained('duties');
         });
     }
 

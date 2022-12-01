@@ -17,6 +17,7 @@ class Order extends Model
     protected $fillable = [
             'total','no_ref_pago','validada','pagada',
             'fecha_registro','fecha_actualizacion',
+            'fecha_autorizacion', 'hash',
             'creator_id','license_id',
     ];
 
@@ -25,10 +26,11 @@ class Order extends Model
     protected $casts = [
         'fecha_registro' => 'datetime',
         'fecha_actualizacion' => 'datetime',
+        'fecha_autorizacion' => 'datetime',
         'pagada' => 'boolean',
         'validada' => 'boolean',
-        'total' => 'double',
-        'duties.cantidad' => 'double',
+        'total' => 'decimal:2',
+        // 'duties.cantidad' => 'double',
     ];
 
     protected $with = [];
@@ -53,10 +55,14 @@ class Order extends Model
         return $this->belongsTo(License::class);
     }
 
+    // public function duties()
+    // {
+    //     return $this->belongsToMany(Duty::class, 'order_duties', 'order_id', 'duty_id')
+    //         ->withPivot('cantidad', 'total');
+    // }
     public function duties()
     {
-        return $this->belongsToMany(Duty::class, 'order_duties', 'order_id', 'duty_id')
-            ->withPivot('cantidad', 'total');
+        return $this->hasMany(OrderDuty::class);
     }
 
     /**

@@ -49,13 +49,4 @@ class DepartmentPolicy
             ? Response::allow()
             : Response::deny('No tienes permisos para editar departamentos.');
     }
-
-    public function destroy(User $user, Department $department, string $sadminPassword)
-    {
-        $validPassword = Hash::check($sadminPassword, $user->contrasenia);
-
-        return $validPassword && $user->can('department.destroy')
-            ? Response::allow()
-            : Response::deny('No tienes permisos para eliminar departamentos.');
-    }
 }

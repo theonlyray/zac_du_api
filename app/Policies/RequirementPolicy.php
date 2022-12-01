@@ -59,7 +59,7 @@ class RequirementPolicy
             : Response::deny('No tienes permisos para crear requisitos');
     }
 
-    public function update(User $user, int $departmentId)
+    public function update(User $user)
     {
         return $user->can('requirement.update') && $this->flag
             ? Response::allow()

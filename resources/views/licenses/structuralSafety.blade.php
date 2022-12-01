@@ -1,4 +1,5 @@
 <html>
+
 <head>
   <style>
     @page {
@@ -253,7 +254,7 @@
       border-bottom: 35px solid transparent;
     }
   </style>
-  <title>{{ $license->licenseType->nombre }} - {{ $license->licenseType->nota}}</title>
+  <title>CONSTANCIA DE SEGURIDAD ESTRUCTURAL</title>
 
 </head>
 
@@ -261,98 +262,66 @@
 
   <header>
     <div class="row">
-      <div class="s6 left">
+      <div class="s6 center">
         <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
       </div>
-      <div class="s6 center" style="padding:5px;">
-        <b style="font-size:13px;">Secretaría de Desarrollo Urbano y Medio Ambiente</b>
-
-        <div class="row right">
-          <b style="font-size:11px;">
-            Zacatecas, Zac; a {{ $license->fecha_actualizacion->format('d-m-Y') }}
-          </b><br>
-          <b style="font-size:11px;">
-            EXPEDIENTE {expediente}
-          </b><br>
-          <b style="font-size:11px;">
-            NÚMERO DE OFICIO {{ $license->folio }}
-          </b><br>
-          <b style="font-size:11px;">
-            RECIBO: {recibo}
-          </b>
-          <b style="font-size:11px;">Página <span class=" pagenum" style="font-size:11px;"></span></b>
-        </div>
+      <div class="s6 border left" style="padding:5px;">
+        <b style="font-size:18px;">Presidencia Municipal de Zacatecas</b>
+        <span style="font-size:11px;">
+          Secretaría de Desarrollo Urbano y Medio Ambiente<br>
+          Departamento de Permisos y Licencias para la Construcción
+        </span>
+        <b style="font-size:13px;">
+          LICENCIA DE CONSTRUCCIÓN Folio No. <span style="font-size:20px;color:rgb(175, 63, 63)">{{ $license->folio }}</span>
+        </b>
+        <b style="font-size:13px;">Página <span class=" pagenum" style="font-size:13px;"></span></b>
       </div>
     </div>
   </header>
   <main>
     <div class="row">
-      <b> C. APODERADO LEGARL </b> <br>
-      {{ $applicant->nombre }} <br>
-      {{ $applicantData->calle }} {{ $applicantData->no }} <br>
-      {{ $applicantData->colonia }} <br>
+      <b> C. APODERADO LEGAL </b> <br>
+      {{ $license->owner->nombre_apellidos }} <br>
+      {{ $license->owner->domicilio }} <br>
       <b>P R E S E N T E</b>
     </div><br>
-    <div class="row justify">
-      Por este conducto y en respuesta a su atento escrito en el que solicita la autorización correspondiente para
-      {{ $license->ad->colonia }} la licencia de {$adsNumber} {{$license->ad->cantidad > 1 ? 'Anuncio' : 'Anuncios'}} {$logotipos} de {$tienda} que Usted
-      representa en el domicilio arriba citado de esta Ciudad, informamos a Usted que esta Secretaría, actuando de
-      conformidad con las disposiciones contenidas en los Artículos 1,2,3,40 y 53 del Reglamento de Imagen Urbana
-      vigente en este Municipio, los Artículos 1,2,3,6,12 y 16 del Reglamento de Publicidad en el Municipio de
-      Zacatecas, así como las contenidad en la ley de Ingreso del Municipio para el Ejercicio Físcal 2022, ha decidido
-      otorgal la autorización bajo las siguientes condiciones:
-      <br>
-    </div>
-    <div class="row">
-      <ul>
-        <li>1. ANUNCIO TIPO: {$LOGOTIPO LUMUNISI ADOSADO A FACHADA (TRES)} <br>
-          INFORMAIÓN: "{$LOGOTIPO LIVERPOOL}" <br>
-          Dimensiones: {$2.06M DE LARGO x 2.90 DE ANCHO} <br>
-          Refrendo 2022: $ {$18,069.00}
-        </li><br>
-        <li>2. ANUNCIO TIPO: {$LOGOTIPO LUMUNISI ADOSADO A FACHADA (TRES)} <br>
-          INFORMAIÓN: "{$LOGOTIPO LIVERPOOL}" <br>
-          Dimensiones: {$2.06M DE LARGO x 2.90 DE ANCHO} <br>
-          Refrendo 2022: $ {$18,069.00}
-        </li><br>
-      </ul>
-    </div>
-    <div class="row">
-      Total: $ {$18,562.00} ({$DIESCIOCHO MIL QUINIENTOS SESENTA Y DOS PESOS } 00/100 M.N)
-    </div>
-    <br>
-    <div class="row justify">
-      El titular de la licencia tendrá la obligación de mantener en óptimas condiciones el funcionamiento y la presencia
-      de los anuncios, así como prpoporcionar y dar mantenimiento permanente para conservarlo en buen estado. Cualquier
-      modificación deberá ser notificada a esta Secretaría.
-    </div>
-    <br>
-    <div class="row justify">
-      La licencia tiene vigencia hasta el {$31 de marzo del 2023}, al término de la cual deberá ser renovada en caso de
-      no hacerlo se le sancionará conforme lo marca la ley para los casos.
-    </div>
-    <br>
-    <div class="row justify">
-      Sin mas por el momento gradezco atención a la presente.
-    </div>
-    <br><br>
+
     <div class="row center">
-      <b>A T E N T A M E N T E</b>
+      <b> ASUNTO: CONSTANCIA DE SEGURIDAD ESTRUCTURAL<br><br>
+        SE HACE CONSTAR
+      </b>
+    </div><br>
+    <div class="row justify">
+      Que en la inspección realizada por parte de los peritos de esta Secretaria de Desarrollo Urbano Y Medio Ambiente,
+      se verificó que la construcción ubicada en la dirección arriba indicada, cuenta con la Seguridad Estructural
+      requerida conforme al Articulo 279 del reglamento General de la Ley de Construcción para el Estado y Municipios de
+      Zacatecas, que señala que para <b>{{ $safety->destino }}</b> la carga viva de diseño es de {{ $safety->carga }}, la cual
+      deberá ser representada. Lo anterior de conformidad con el <b>Dictamen de Seguridad Estructural</b> presentado por
+      el <b>{{ $applicant->nombre }}</b> con registro de <b>{{ $applicantData->no_registro }}</b>.
+    </div>
+    <br>
+    <div class="row justify">
+        Se extiende la presente a petición del interesado para los usos y fines legales que al mismo convengan, en la
+        ciudad de Zacatecas, Capital del Estado del mismo nombre, a los
+        {{ $validity->created_at->format('d') ?? '0' }} del mes de
+        {{ $validity->created_at->format('m') ?? '00' }} del año
+        {{ $validity->created_at->format('Y') ?? '0000' }}
+    </div><br><br>
+    <div class="row center">
+      <b>
+        A T E N T A M E N T E
+      </b>
     </div>
     <br><br><br><br>
     <div class="row center">
+      <hr>
       <b>
-        M. ARQ. CARLA DANUELA MALDONADO RIOS<br>
-        SECRETARÍA DE DESARROLLO URBANO Y MEDIO AMBIENTE
+        M. {{ $dirDep->nombre }} <br>
+        JEFE DE DEPARTAMENTO DE PERMIOS Y <br>
+        LICENCIAS PARA LA CONSTRUCCIÓN <br>
       </b>
     </div>
-    <br><br><br>
-    <div class="row right">
-      <span>
-        LIC. MA GUADALUPE DE SANTIAGO MURILLO <br>
-        JEFA DEL DPTO. DE PLANEACIÓN Y <br> DESARROLLO URBANO
-      </span>
-    </div>
+
   </main>
   <footer>
     <b>Av. Héroes de Chapultepec N° 1110 Col. Lázaro Cárdenaz, Zacatecas, Zac. C.P. 98040 Tel. 92 3 94 21</b>

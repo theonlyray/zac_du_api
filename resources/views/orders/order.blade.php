@@ -268,7 +268,8 @@
                       PRESENTE.
                     </span><br>
                     <b style="font-size:13px;">
-                      Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">OC-{{ $license->folio }}</span>
+                      {{--  Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">OC-{{ $license->folio }}</span>  --}}
+                      Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">101</span>
                     </b>
                   </div>
                 </div>
@@ -307,7 +308,7 @@
             <table width="100%">
             <tr>
                 <td class="grande border"><b>CONCEPTO</b></td>
-                <td class="grande center border"><b>CLAVE</b></td>
+                <td class="grande center border"><b>CUENTA</b></td>
                 <td class="grande center border"><b>TARIFA</b></td>
                 <td class="grande center border"><b>CANTIDAD</b></td>
                 <td class="grande center border"><b>SUBTOTAL</b></td>
@@ -315,10 +316,10 @@
             @foreach($order->duties as $duty)
             <tr>
                 <td width="50%" class="grande border">{{ $duty->descripcion }}</td>
-                <td class="grande center border">{{ $duty->clave }}</td>
+                <td class="grande center border">{{ $duty->cuenta }}</td>
                 <td class="grande center border">{{ number_format($duty->precio,2) }}</td>
-                <td class="grande center border">{{ number_format($duty->pivot->cantidad,2) }}</td>
-                <td class="grande center border">{{ number_format($duty->pivot->total,2) }}</td>
+                <td class="grande center border">{{ number_format($duty->cantidad,2) }}</td>
+                <td class="grande center border">{{ number_format($duty->total,2) }}</td>
             </tr>
             @endforeach
             </table>
@@ -336,11 +337,15 @@
               </div>
               <table width="100%">
                 <tr>
-                  <td class="grande">Propietario: <b>{{ $license->owner->nombre_apellidos }}</b></td>
+                    @if(!is_null($license->owner))
+                        <td class="grande">Propietario: <b>{{ $license->owner->nombre_apellidos }}</b></td>
+                    @endif
                 </tr>
                 <tr>
                   <td class="grande">Domicilio: <b>
-                    {{ $license->property->calle }} {{ $license->property->no }}, {{ $license->property->colonia }}</b></td>
+                    @if(!is_null($license->property))
+                        {{ $license->property->calle }} {{ $license->property->no }}, {{ $license->property->colonia }}</b></td>
+                    @endif
                 </tr>
               </table>
             </div>

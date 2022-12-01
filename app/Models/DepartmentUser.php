@@ -12,6 +12,7 @@ class DepartmentUser extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'api_op_token',
         'department_id', 'user_id',
     ];
 

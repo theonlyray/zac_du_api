@@ -86,13 +86,19 @@ class UserPolicy
 
     public function setRoleFlag(User $user, $roleId)
     {
-        if ($roleId >= 9 && $user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])) {
+        if ($roleId >= 9 && $user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt','directorCol', 'subDirectorCol'])) {
             $this->flagRole = true;
         }
         else if ($roleId == 5 && $user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt'])) {//?colaborador
             $this->flagRole = true;
         }
         else if ($roleId == 4 && $user->hasRole(['directorDpt', 'subDirectorDpt'])) {//?jefe uni
+            $this->flagRole = true;
+        }
+        else if ($roleId == 7 && $user->hasRole(['directorCol'])) {//? col dir
+            $this->flagRole = true;
+        }
+        else if ($roleId == 8 && $user->hasRole(['directorCol', 'subDirectorCol'])) {//? col subdir
             $this->flagRole = true;
         }
     }

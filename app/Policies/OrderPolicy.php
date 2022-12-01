@@ -20,36 +20,50 @@ class OrderPolicy
      */
     protected $flag;
     protected $deletingMessage;
+    protected $validatingMessage;
     public function __construct()
     {
-        $this->flag = true;
+        $this->flag = false;
         $this->deletingMessage = 'No tienes permisos para eliminar esta orden.';
+        $this->validatingMessage = 'No tienes permisos para validar ordenes.';
     }
 
     //?order store method is only accessible for users from the same department of the license type
     public function before(User $user, $ability, $model, $departmentIdInRequest = null, License $license = null, Order $order = null, $password = null)
     {
+        logger('before');
+        logger($ability);
        //?set in an array departmentIds
        $userDepartmentIds = $user->department->pluck('id')->toArray();
-
        if ($ability == 'index' || $ability == 'show' || $ability == 'update') {
             //?user is a public servant and dont belongs to the department
-            if(!$user->hasRole(['dro', 'particular']) && !in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = false;
+            if(!$user->hasRole(['dro', 'particular']) && in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = true;
             //? user is applicat but doesn owner of license
-            if($user->hasRole(['dro', 'particular']) && $user->id != $license->user_id) $this->flag = false;
+            if($user->hasRole(['dro', 'particular']) && $user->id == $license->user_id) $this->flag = true;
 
-        }else if($ability == 'store' || $ability == 'validate'){
-            if(!in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = false;
-        }elseif ($ability == 'destroy') {
-            if(!in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = false;
-            if($order->pagada){
-                $this->deletingMessage = 'No puedes eliminar una orden pagada.';
+        }else if($ability == 'store'){
+            if(in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = true;
+        }else if ($ability == 'destroy') {
+            if(in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = true;
+
+            if(!$order->pagada && !$order->validada) $this->flag = true;
+            else{
+                $this->deletingMessage = 'No puedes eliminar una orden pagada ni validada.';
                 $this->flag = false;
             }
-            if (!Hash::check($password, $user->contrasenia)) {
+            if (Hash::check($password, $user->contrasenia)) $this->flag = true;
+            else{
                 $this->deletingMessage = 'Contraseña incorrecta.';
                 $this->flag = false;
             }
+        }
+        elseif ($ability == 'validate') {
+            //? user with role jefeSDUMA is as super admin dont enter in validations
+            if(!$order->validada) $this->flag = true;
+            else $this->validatingMessage = 'La orden ya fue validada.';
+            if (Hash::check($password, $user->contrasenia)) $this->flag = true;
+            else $this->validatingMessage = 'Contraseña incorrecta.';
+
         }
         return null;//?returns null to continue with the next method
     }
@@ -93,6 +107,6 @@ class OrderPolicy
     {
         return $user->can('order.validate') && $this->flag
             ? Response::allow()
-            : Response::deny('No tienes permisos para validar ordenes.');
+            : Response::deny($this->validatingMessage);
     }
 }

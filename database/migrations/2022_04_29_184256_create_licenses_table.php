@@ -23,6 +23,8 @@ class CreateLicensesTable extends Migration
                 ->useCurrent();
             $table->timestamp('fecha_actualizacion')
                 ->useCurrent();
+            $table->boolean('firmada')
+                ->default(false);
             $table->foreignId('license_type_id')
                 ->constrained('license_types');
             $table->foreignId('user_id')

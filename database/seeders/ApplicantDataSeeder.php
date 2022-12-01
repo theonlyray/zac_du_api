@@ -24,7 +24,7 @@ class ApplicantDataSeeder extends Seeder
             'colonia'       => $faker->cityPrefix(),
             'cp'            => $faker->postcode(),
             'ocupacion'     => $faker->jobTitle(),
-            'user_id' => 22
+            'user_id' => 17
         ]);
         ApplicantData::create([
             'celular'       => $faker->phoneNumber(),
@@ -35,7 +35,7 @@ class ApplicantDataSeeder extends Seeder
             'colonia'       => $faker->cityPrefix(),
             'cp'            => $faker->postcode(),
             'ocupacion'     => $faker->jobTitle(),
-            'user_id' => 23
+            'user_id' => 18
         ]);
     }
 }

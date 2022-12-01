@@ -174,30 +174,6 @@ class RoleSeeder extends Seeder
                 ]);//?only to super-admin
 
             /**
-             * Specialties
-             */
-            Permission::create([
-                    'name' => 'specialty.index',
-                    'description' => 'Listar Especialidades'
-                ])->assignRole([$directorCol, $subDirectorCol, $colaboradorCol, $dro]);
-            Permission::create([
-                    'name' => 'specialty.show',
-                    'description' => 'Ver detalles de Especialidades'
-                ])->assignRole($rolesColApp);
-            Permission::create([
-                    'name' => 'specialty.store',
-                    'description' => 'Crear Especialidades'
-                ])->assignRole([$directorCol, $subDirectorCol]);
-            Permission::create([
-                    'name' => 'specialty.update',
-                    'description' => 'Editar Especialidades'
-                ])->assignRole([$directorCol, $subDirectorCol]);
-            Permission::create([
-                    'name' => 'specialty.destroy',
-                    'description' => 'Eliminar Especialidades'
-            ]);//?only to super-admin
-
-            /**
              * units
              */
             Permission::create([
@@ -353,16 +329,8 @@ class RoleSeeder extends Seeder
                     'description' => 'Validar un Ingreso de una Solicitud'
                 ])->assignRole([$allMpi]);
             Permission::create([
-                    'name' => 'license.validateFirstReview',
-                    'description' => 'Validar Primer Revisión'
-                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
-            Permission::create([
-                    'name' => 'license.validateSecondReview',
-                    'description' => 'Validar Segunda Revisión'
-                ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
-            Permission::create([
-                    'name' => 'license.validateThirdReview',
-                    'description' => 'Validar Tercera Revisión'
+                    'name' => 'license.validateDocsPlans',
+                    'description' => 'Validar Planos y Documentos'
                 ])->assignRole([$jefeSDUMA, $directorDpt, $subDirectorDpt, $jefeUnidadDpt]);
             Permission::create([
                     'name' => 'license.observations',
@@ -449,6 +417,26 @@ class RoleSeeder extends Seeder
                 'name' => 'order.destroy',
                 'description' => 'Eliminar una Ordene de pago'
             ])->assignRole([$jefeSDUMA, $directorDpt]);
+
+            /**
+             * land uses
+             */
+            Permission::create([
+                'name' => 'landUse.index',
+                'description' => 'Listar Usos de Suelo'
+            ])->assignRole($allMpi);
+            Permission::create([
+                    'name' => 'landUse.show',
+                    'description' => 'Ver detalles de un Uso de Suelo'
+                ])->assignRole($allMpi);
+            Permission::create([
+                    'name' => 'landUse.store',
+                    'description' => 'Crear Uso de Suelo'
+                ])->assignRole([$directorDpt, $subDirectorDpt]);
+            Permission::create([
+                    'name' => 'landUse.update',
+                    'description' => 'Editar Uso de Suelo'
+                ])->assignRole([$directorDpt, $subDirectorDpt]);
         }
     }
 }

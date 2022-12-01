@@ -25,6 +25,8 @@ use App\Models\LicenseValidity;
 use App\Models\Property;
 use App\Models\Requirement;
 use App\Models\SFD;
+use App\Models\StructuralSafetyCertificate;
+use App\Services\CheckLicenseType;
 use App\Services\StorageService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -38,10 +40,12 @@ use function Symfony\Component\String\b;
 class LicenseController extends Controller
 {
     protected $storage;
+    protected $checkLicenseType;
 
     public function __construct(StorageService $storage)
     {
         $this->storage = $storage;
+        $this->checkLicenseType = new CheckLicenseType();
     }
 
     public function counter()
@@ -60,7 +64,7 @@ class LicenseController extends Controller
         $this->authorize('index', License::class);
 
         // todo update by role
-        $licenses = License::where('estatus', 14)->get(['id','folio']);
+        $licenses = License::where('estatus', 7)->get(['id','folio']);
 
         abort_if($licenses->isEmpty(), 204, 'No se encontraron licencias.');
 
@@ -98,7 +102,10 @@ class LicenseController extends Controller
             'validity', 'requirements', 'ad',
             'validations', 'observations',
             'order', 'order.duties', 'applicant.applicantData',
-            'compatibilityCertificate', 'SFD'
+            'compatibilityCertificate',
+            'compatibilityCertificate.LandUse',
+            'compatibilityCertificate.LandUseDescription',
+            'SFD', 'safety',
         ]), 200);
     }
 
@@ -111,53 +118,55 @@ class LicenseController extends Controller
         $licenseData    = $request->validated();
         $license        = new License($licenseData);
 
+        $licenseType = $this->checkLicenseType->checkLicenseType($request->license_type_id);
+
         DB::beginTransaction();
         try {
             $license->save();
-
-            if ($request->license_type_id != 20 && $request->license_type_id != 13){//? vehicle ad || selfconstruction
-                //?propety description
+            if ($licenseType != 'vehicle-ad' && $licenseType != 'self-build') {
                 self::saveProperty($request, $license);
             }
 
-            //? numbers in db, id license type
-            if ($request->license_type_id >= 1 && $request->license_type_id <= 6 ||
-                ($request->license_type_id >= 8 && $request->license_type_id <= 11) ||
-                ($request->license_type_id == 15) ||
-                ($request->license_type_id >= 25 && $request->license_type_id <= 28)
-            ) { //? permisos de construccion
-               //?backgrounds
-                if ($request->backgrounds[0] <> null) {
+            if ($licenseType == 'construction') {
+                //?backgrounds
+                if ($request->backgrounds[0] <> null)
                     self::saveBackgrounds($request, $license);
-                }
-
                 //?construction description
                 self::saveConstructionDescriptions($request, $license);
 
                 self::saveConstructionOwner($request, $license, $user);
             }
 
-            if ($request->license_type_id == 7 || $request->license_type_id == 12 ||
-                $request->license_type_id == 22 ||$request->license_type_id == 24) {
-                //?no oficial | romper pavimento | constancia de servicios
-                self::saveConstructionOwner($request, $license, $user);
+            if ($licenseType == 'oficial_number' || $licenseType == 'urban_services' ||
+                $licenseType == 'sfd' || $licenseType == 'break_pavement') {
+                    self::saveConstructionOwner($request, $license, $user);
             }
 
-            if ($request->license_type_id == 13) {
-                //?constancia autoconstruccion
+            if ($licenseType == 'self-build') {
                 self::saveBackgrounds($request, $license);
             }
 
-            if ($request->license_type_id == 16) {//? constancia compatibilidad
+            if ($licenseType == 'safety') {
+                self::saveSafety($request, $license);
+                self::saveConstructionOwner($request, $license, $user);
+            }
+
+            if ($licenseType == 'compatibility') {
                 self::saveCompatibilityCertificate($request, $license);
             }
 
-            if ($request->license_type_id >= 17 && $request->license_type_id <= 20) {//? anuncios
+            if ($licenseType == 'ad' || $licenseType == 'vehicle_ad') {//? ads
                 self::saveAdDescription($request, $license);
             }
 
-            if ($request->license_type_id == 22) {//? sfd
+            if ($licenseType == 'sfd') {//? sfd
                 self::saveSFD($request, $license);
+            }
+
+            if (!is_null($request->validity)) {
+                if (!is_null($request->validity['fecha_autorizacion']) && !is_null($request->validity['fecha_fin_vigencia'])) {
+                    self::saveValidity($request, $license);
+                }
             }
 
             self::saveRequirements($licenseData, $license);
@@ -179,20 +188,18 @@ class LicenseController extends Controller
 
         DB::beginTransaction();
 
+        $licenseType = $this->checkLicenseType->checkLicenseType($request->license_type_id);
+
         try {
 
-            if ($request->license_type_id != 20){//? vehicle ad
+            if ($licenseType != 'vehicle-ad'){//? vehicle ad
                 $property = Property::firstWhere('license_id', $license->id);
                 $property->fill($request->property);
                 $property->save();
             }
 
             //? numbers in db, id license type
-            if ($request->license_type_id >= 1 && $request->license_type_id <= 6 ||
-                ($request->license_type_id >= 8 && $request->license_type_id <= 11) ||
-                ($request->license_type_id == 15) ||
-                ($request->license_type_id >= 25 && $request->license_type_id <= 28)
-            ) { //? permisos de construccion
+            if ($licenseType == 'construction') { //? permisos de construccion
                 $description = ConstructionDescription::firstWhere('license_id', $license->id);
                 $description->fill($request->construction);
 
@@ -207,32 +214,43 @@ class LicenseController extends Controller
                 }
             }
 
-            if ($request->license_type_id == 7 || $request->license_type_id == 12 ||
-                $request->license_type_id == 22 || $request->license_type_id == 24) {
+            if ($licenseType == 'oficial_number' || $licenseType == 'urban_services' ||
+                $licenseType == 'sfd' || $licenseType == 'break_pavement') {
                 //?no oficial | romper pavimento
                 $owner = ConstructionOwner::firstWhere('license_id', $license->id);
                 $owner->fill($request->owner);
                 $license->owner()->save($owner);
             }
 
-            if ($request->license_type_id == 13) {
+            if ($licenseType == 'self-build') {
                 //?constancia autoconstruccion
                 self::updateBackgrounds($request, $license);
             }
 
-            if ($request->license_type_id == 16) {//? compatibilityCertificate
+            if ($licenseType == 'safety') {
+                //?seguridad estructural
+                $safety = StructuralSafetyCertificate::firstWhere('license_id', $license->id);
+                $safety->fill($request->safety);
+                $license->safety()->save($safety);
+
+                $owner = ConstructionOwner::firstWhere('license_id', $license->id);
+                $owner->fill($request->owner);
+                $license->owner()->save($owner);
+            }
+
+            if ($licenseType == 'compatibility') {//? compatibilityCertificate
                 $compatibilityCertificate = CompatibilityCertificate::firstWhere('license_id', $license->id);
                 $compatibilityCertificate->fill($request->compatibility_certificate);
                 $license->compatibilityCertificate()->save($compatibilityCertificate);
             }
 
-            if ($request->license_type_id >= 17 && $request->license_type_id <= 20) {//? anuncios
+            if ($licenseType == 'ad' || $licenseType == 'vehicle_ad') {//? anuncios
                 $ad = AdDescription::firstWhere('license_id', $license->id);
                 $ad->fill($request->ad);
                 $license->ad()->save($ad);
             }
 
-            if ($request->license_type_id == 22) {//? anuncios
+            if ($licenseType == 'sfd') {//? sfd
                 $sfd = SFD::firstWhere('license_id', $license->id);
                 $sfd->fill($request->s_f_d);
                 $license->SFD()->save($sfd);
@@ -240,18 +258,7 @@ class LicenseController extends Controller
 
             if (!is_null($request->validity)) {
                 if (!is_null($request->validity['fecha_autorizacion']) && !is_null($request->validity['fecha_fin_vigencia'])) {
-                    $validity = LicenseValidity::firstWhere('license_id', $license->id);
-                    $diff = date_diff(date_create($request->validity['fecha_autorizacion']), date_create($request->validity['fecha_fin_vigencia']));
-
-                    $validityData = [
-                        'dias_total' => $diff->format("%a"),
-                        'fecha_autorizacion' => $request->validity['fecha_autorizacion'],
-                        'fecha_fin_vigencia' => $request->validity['fecha_fin_vigencia'],
-                    ];
-                    if (is_null($validity)) $validity = new LicenseValidity($validityData);
-                    else $validity->fill($validityData);
-
-                    $license->validity()->save($validity);
+                    self::saveValidity($request, $license);
                 }
             }
 
@@ -417,7 +424,7 @@ class LicenseController extends Controller
             abort_if($responseEvent[0] == 'false',403,'No ha cargado todos los documentos obligatorios');
         }
 
-        if ($request->estatus == 4 || $request->estatus == 5 || $request->estatus == 7 || $request->estatus == 9) {
+        if ($request->estatus == 4 || $request->estatus == 5 || $request->estatus == 7) {
             try {
                 $validition = new LicenseValidation(['user_id' => $user->id, 'descripcion' => $license->estatus]);
                 $license->validations()->save($validition);
@@ -455,16 +462,18 @@ class LicenseController extends Controller
         $priorLicense   = $license;
         // $licenseData    = $request->validated();
         $license        = new License([
-            'license_type_id' => $type == true ? 23 : 6,
+            'license_type_id' => $type == 'true' ? 23 : 6,
             'estatus'         => 1
         ]);
+
+        $licenseType = $this->checkLicenseType->checkLicenseType($request->license_type_id);
 
         DB::beginTransaction();
         try {
             $license->save();
 
             mkdir(storage_path("app/public/solicitantes/{$priorLicense->user_id}/licencias/{$license->id}"));
-            if ($request->license_type_id != 20){//? vehicle ad
+            if ($licenseType != 'vehicle-ad'){//? vehicle ad
                 //?propety description
 
                 $property = Property::firstWhere('license_id', $priorLicense->id);
@@ -483,11 +492,7 @@ class LicenseController extends Controller
             }
 
             //? numbers in db, id license type
-            if  ($priorLicense->license_type_id >= 1 && $priorLicense->license_type_id <= 6 ||
-                ($priorLicense->license_type_id >= 8 && $priorLicense->license_type_id <= 11) ||
-                ($priorLicense->license_type_id == 15) ||
-                ($priorLicense->license_type_id >= 24 && $priorLicense->license_type_id <= 28)
-            ) { //? permisos de construccion
+            if  ($licenseType == 'construction') { //? permisos de construccion
                //?backgrounds
                 if ($request->backgrounds[0] <> null) {
                     self::saveBackgrounds($request, $license);
@@ -498,52 +503,15 @@ class LicenseController extends Controller
                 $newconstDesc = $constDesc->replicate();
                 $newconstDesc->license_id = $license->id;
                 $newconstDesc->save();
-                // self::saveConstructionDescriptions($request, $license);
 
                 $constOwner = ConstructionOwner::firstWhere('license_id', $priorLicense->id);
                 $newconstOwner = $constOwner->replicate();
                 $newconstOwner->license_id = $license->id;
                 $newconstOwner->save();
-                // self::copyConstructionOwner($request, $license);
-            }
-
-            if ($priorLicense->license_type_id == 7 || $priorLicense->license_type_id == 24) {
-                //posible aliminacion de este if, no necesita prorroga
-                // no oficial | romper pavimento
-                $constOwner = ConstructionOwner::firstWhere('license_id', $priorLicense->id);
-                $newconstOwner = $constOwner->replicate();
-                $newconstOwner->license_id = $license->id;
-                $newconstOwner->save();
-            }
-
-            if ($request->license_type_id == 16) {//? constancia compatibilidad
-                $compatibility = CompatibilityCertificate::firstWhere('license_id', $priorLicense->id);
-                $newCompatibility = $compatibility->replicate();
-                $newCompatibility->license_id = $license->id;
-                $newCompatibility->save();
-                // self::saveCompatibilityCertificate($request, $license);
-            }
-
-            if ($request->license_type_id >= 17 && $request->license_type_id <= 20) {//? anuncios
-                $adDescription = AdDescription::firstWhere('license_id', $priorLicense->id);
-                $newAdDescription = $adDescription->replicate();
-                $newAdDescription->license_id = $license->id;
-                $newAdDescription->save();
-                // self::saveAdDescription($request, $license);
-            }
-
-            if ($request->license_type_id >= 22) {//? sfd
-                $sfd = SFD::firstWhere('license_id', $priorLicense->id);
-                $newSfd = $sfd->replicate();
-                $newSfd->license_id = $license->id;
-                $newSfd->save();
-                self::saveSFD($request, $license);
             }
 
             if ($type){//?termination
                 //?array created to can use saveRequirements method in store and sublicense function
-                // $data = [ 'license_type_id' => $priorLicense->license_type_id ];
-                // self::saveRequirements($data, $license);
 
                 self::copyRequirements($priorLicense, $license);
             }else{//?extension
@@ -668,8 +636,20 @@ class LicenseController extends Controller
      */
     public function saveSFD($request, $license)
     {
-        $sfd = new SFD($request->sfd);
+        $sfd = new SFD($request->s_f_d);
         $license->sfd()->save($sfd);
+    }
+
+    /**
+     * save structural safety informarion
+     * @param json $request
+     * @param License $license
+     * @return void
+     */
+    public function saveSafety($request, $license)
+    {
+        $safety = new StructuralSafetyCertificate($request->safety);
+        $license->safety()->save($safety);
     }
 
     /**
@@ -775,5 +755,21 @@ class LicenseController extends Controller
             return $background;
         });
         $license->backgrounds()->saveMany($backgrounds);
+    }
+
+    public function saveValidity($request, $license)
+    {
+        $validity = LicenseValidity::firstWhere('license_id', $license->id);
+        $diff = date_diff(date_create($request->validity['fecha_autorizacion']), date_create($request->validity['fecha_fin_vigencia']));
+
+        $validityData = [
+            'dias_total' => $diff->format("%a"),
+            'fecha_autorizacion' => $request->validity['fecha_autorizacion'],
+            'fecha_fin_vigencia' => $request->validity['fecha_fin_vigencia'],
+        ];
+        if (is_null($validity)) $validity = new LicenseValidity($validityData);
+        else $validity->fill($validityData);
+
+        $license->validity()->save($validity);
     }
 }

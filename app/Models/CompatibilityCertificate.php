@@ -16,6 +16,7 @@ class CompatibilityCertificate extends Model
         'uso_actual', 'uso_propuesto',
         'usos_permitidos', 'usos_prohibidos',
         'usos_condicionales', 'observaciones',
+        'land_use_id', 'land_use_description_id',
         'resticciones', 'license_id',
     ];
 
@@ -26,5 +27,15 @@ class CompatibilityCertificate extends Model
     public function license()
     {
         return $this->belongsTo(License::class);
+    }
+
+    public function LandUse()
+    {
+        return $this->belongsTo(LandUse::class);
+    }
+
+    public function LandUseDescription()
+    {
+        return $this->belongsTo(LandUseDescription::class);
     }
 }

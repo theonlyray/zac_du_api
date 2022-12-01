@@ -18,9 +18,9 @@ class DepartmentController extends Controller
 
         $departments = Department::all();
 
-        if ($departments->isNotEmpty()) return response()->json($departments, 200);
+        abort_if($departments->isEmpty(), 204, 'No se encontraron departamentos.');
 
-        abort(204, 'No se encontraron departamentos.');
+        return response()->json($departments, 200);
     }
 
     public function show(Department $department)
@@ -65,23 +65,5 @@ class DepartmentController extends Controller
         $department->fill($request->validated());
         $department->save();
         return response()->json($department, 200);
-    }
-
-    public function destroy(DestroyDepartmentRequest $request, Department $department)
-    {
-        $this->authorize('destroy', [$department, $request->contrasenia]);
-
-        DB::beginTransaction();
-
-        try {
-            $department->delete();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            abort(500, "No se ha podido eliminar el departamento, inténtalo más tarde. ". $th);
-        }
-
-        DB::commit();
-
-        return response()->json($department, 204);
     }
 }
