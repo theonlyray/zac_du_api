@@ -15,7 +15,7 @@ class CreateDepartmentUsersTable extends Migration
     {
         Schema::create('department_users', function (Blueprint $table) {
             $table->id();
-            $table->text('api_op_token')
+            $table->text('api_op_token',255)
                 ->unique()
                 ->nullable();
             $table->foreignId('user_id')
