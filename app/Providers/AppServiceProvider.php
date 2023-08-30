@@ -6,6 +6,11 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    public $bindings = [
+        IPdfService::class => PdfService::class,
+        IStorageService::class => StorageService::class,
+        IStoreLicenseService::class => StoreLicenseService::class,
+    ];
     /**
      * Register any application services.
      *

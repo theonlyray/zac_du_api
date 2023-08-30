@@ -78,7 +78,7 @@ class SignLicense
         $license->load(['licenseType', 'applicant',
             'applicant.applicantData','property',
             'backgrounds', 'construction', 'owner',
-            'validity', 'requirements', 'ad',
+            'validity', 'requirements', 'ads',
             'validations', 'observations',
             'order', 'order.duties']);
 

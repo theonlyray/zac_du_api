@@ -22,7 +22,7 @@
       left: 0cm;
       right: 0cm;
       height: 2cm;
-      background-color: #a31831;
+      background-color: #008538;
       color: white;
       text-align: center;
       line-height: 1.5cm;
@@ -32,7 +32,7 @@
       margin-right: 2cm;
       font-family: Arial, Helvetica, sans-serif;
       margin-top: 120px;
-      font-size: 12px;
+      font-size: 10x;
       margin-bottom: 2cm;
     }
     .img-contain {
@@ -115,6 +115,7 @@
     }
     .uppercase {
       text-transform: uppercase;
+      font-size: 13px;
     }
     .textSty {
       text-decoration: underline;
@@ -255,7 +256,7 @@
       border-bottom: 35px solid transparent;
     }
   </style>
-  <title>Anuncios</title>
+  <title>{{ $license->licenseType->nombre }} - {{ $license->licenseType->nota}}</title>
 
 </head>
 
@@ -263,91 +264,80 @@
 
   <header>
     <div class="row">
-      <div class="s6 left">
-        <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
-      </div>
-      <div class="s6 center" style="padding:5px;">
-        <b style="font-size:13px;">Secretaría de Desarrollo Urbano y Medio Ambiente</b>
-
-        <div class="row right">
-          <b style="font-size:11px;">
-            @if (!is_null($license->validity))
-                {{ $license->validity->fecha_autorizacion->format('d-m-Y') }}
-            @else
-                Zacatecas, Zac; a { Vista Previa } </td>
-            @endif
-          </b><br>
-          <b style="font-size:11px;">
-            EXPEDIENTE {expediente}
-          </b><br>
-          <b style="font-size:11px;">
-            NÚMERO DE OFICIO {{ $license->folio }}
-          </b><br>
-          <b style="font-size:11px;">
-            RECIBO: {recibo}
-          </b>
-          <b style="font-size:11px;">Página <span class=" pagenum" style="font-size:11px;"></span></b>
+        <div class="s6 left">
+            <img src="https://permisos.capitaldezacatecas.gob.mx/img/logo/logo-clear-v.png" height="100px">
         </div>
-      </div>
+        <div class="s6 right" style="padding:5px;">
+            <span style="font-size:11px;">
+                Ciudad de Zacatecas, Zac.; a {{ $validity_date }}
+            </span><br>
+            <span class="right" style="font-size:10px;"> DEPARTAMENTO DE PLANEACIÓN Y DESARROLLO URBANO </span><br>
+            <b style="font-size:11px;">
+                CONSTANCIA DE COMPATIBILIDAD URBANISTICA NO. {{ $license->folio }}
+            </b><br>
+            <b style="font-size:11px;">
+                Referencia. {{ $license->referencia }}
+            </b><br>
+        </div>
     </div>
   </header>
   <main>
-    <div class="row">
-      <b> C. SECRETARIO DE DESARROLLO URBANO <br>
-        Y MEDIO AMBIENTE
+    <div class="row grande">
+        <br>
+      <b> C. SECRETARIO DE DESARROLLO URBANO
+        Y MEDIO AMBIENTE<br>
       </b><br>
       <b>P R E S E N T E</b>
     </div><br>
-    <div class="row justify">
-      Con base en el Articulo 133 del Código Urbano vigente en el Estado, solicito expida Constancia de Compatibilidad
+    <div class="row justify grande">
+      Con base en el Articulo 119 del Código Territorial y Urbano para el Estado de Zacatecas y sus Municipios, solicito expida Constancia de Compatibilidad
       Urbanística para el predio ubicado en:
     </div><br>
-    <table width="100%">
+    <table width="100%" class="grande">
       <tr>
         <td>{{ $license->property->calle }}</td>
         <td>{{ $license->property->no }}</td>
         <td>{{ $license->property->colonia }}</td>
         <td>Zacatecas</td>
       </tr>
-      <tr style="border-top: black solid;">
+      <tr style="border-top: black solid; font-size: 13px;">
         <td>Nombre de la calle</td>
         <td>Número</td>
         <td>Colonia</td>
         <td>Ciudad</td>
       </tr>
-    </table><br><br>
-    <table width="100%">
-      <tr>
+    </table>
+    <table width="100%" class="grande">
+      <tr class="grande">
         <td>Con las siguientes medidas y colindancias:</td>
         <td>SUPERFICIE: {{ $compatibility->m2_ocupacion }}</td>
       </tr>
-    </table><br>
-    <div class="row">
-      {{ $compatibility->medidas_colindancia }}
+    </table>
+    <div class="row grande">
+        @php
+            echo nl2br($compatibility->medidas_colindancia);
+        @endphp
     </div>
-    <br>
-    <table width="100%">
+    <table width="100%" class="grande">
       <tr>
         <td>Uso Actual del Terreno:</td>
         <td>{{ $compatibility->uso_actual }}</td>
         <td>Uso Propuesto :</td>
         <td>{{ $compatibility->uso_propuesto }}</td>
       </tr>
-    </table><br><br>
-    <div class="row justify">
+    </table>
+    <div class="row justify grande">
       Datos del solicitante
     </div><br>
-    <table width="100%">
+    <table width="100%" class="grande">
       <tr>
         <td>{{ $applicant->nombre }}</td>
-        <td></td>
       </tr>
       <tr>
         <td style="border-top: black solid;">Nombre</td>
-        <td style="border-top: black solid;">Firma</td>
       </tr>
-    </table><br><br>
-    <table width="100%">
+    </table>
+    <table width="100%" class="grande">
         <tr>
             <td>{{ $applicantData->calle }} {{ $applicantData->no }}. {{ $applicantData->colonia }}</td>
             <td>{{ $applicantData->celular }}</td>
@@ -356,159 +346,141 @@
         <td style="border-top: black solid;">Domicilio</td>
         <td style="border-top: black solid;">Teléfono</td>
       </tr>
-    </table><br><br>
-    <div>
+    </table>
+    <div class="grande">
       CROQUIS DE LOCALIZACIÓN DEL TERRENO
     </div>
-    <img src="https://1.bp.blogspot.com/-QBQF-2eqS6U/UUCn5Wvfm6I/AAAAAAAAAtw/v2Z9_OQINT8/s1600/croquis+vintage.jpg"
+    <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->property->mapa_url}}"
       alt="" width="100%">
-    <br>
-    <div class="row justify">
+    <div class="row justify grande">
       PARA USO EXCLUSIVO DE LA SECRETARÍA <br>
-      Con fundamento en el Artículo 22, Fracción XXXVIII, del Código Urbano vigente, se expide Constancia para el predio
+      Con fundamento en el Artículo 14, Fracción XXXVIII del Código Territorial y Urbano para el Estado de Zacatecas y sus Municipios, se expide Constancia para el predio
       descrito:
     </div>
     <br>
-    <table width="100%">
+    <table width="100%" class="grande">
       <tr class="border">
         <td width="25%">USOS DEL SUELO PERMITIDOS:</td>
-        <td>{{ $compatibility->usos_permitidos }}</td>
+        <td>
+            @php
+                echo nl2br($compatibility->usos_permitidos);
+            @endphp
+        </td>
       </tr>
       <tr class="border">
         <td width="25%">USOS DEL SUELO PROHIBIDOS:</td>
-        <td>{{ $compatibility->usos_permitidos }}</td>
+        <td>
+            @php
+                echo nl2br($compatibility->usos_prohibidos);
+            @endphp
+        </td>
       </tr>
       <tr class="border">
         <td width="25%">USOS DEL SUELO CONDICIONADOS:</td>
-        <td>{{ $compatibility->usos_permitidos }}</td>
+        <td>
+            @php
+                echo nl2br($compatibility->usos_condicionales);
+            @endphp
+        </td>
       </tr>
     </table>
     <br>
+    <div class="row justify grande">
+        <b>
+            <i>
+                <u>
+                    @php
+                        echo nl2br($compatibility->programa);
+                    @endphp
+                </u>
+            </i>
+        </b>
+    </div><br>
     <table width="100%">
       <tr>
         <td>EL USO PROPUESTO ES: </td>
-        <td>P E R M I T I D O</td>
+        <td><b>{{$compatibility->resolucion}}</b></td>
       </tr>
     </table>
-    <div class="row">
-      <ul>
-        <li>1. El presente documento tiene vigencia de 1 (un) año a partir de la fecha de expedición
-        </li><br>
-        <li>2. No es constancia de propiedad, ni licencia de construcción y será nulo si carece de la parte
-          complementaria al reverso
-        </li>
-        <li>3. El uso de suelo propuesto estará sujeto, a las restricciones y observaciones que en su caso se mencionen
-          al reverso de
-          esta Constancia.
-        </li>
-      </ul>
-    </div>
-    <div class="row">
+    <div class="row grande">
+        <ul>
+          <li>1. El presente documento tiene vigencia de 1 (un) año a partir de la fecha de expedición
+          </li><br>
+          <li>2. No es constancia de propiedad, ni licencia de construcción y será nulo si carece de la parte
+            complementaria al reverso
+          </li>
+          <li>3. El uso de suelo propuesto estará sujeto, a las restricciones y observaciones que en su caso se mencionen
+            al reverso de
+            esta Constancia.
+          </li>
+        </ul>
+    </div><br>
+    {{--  salto de pagina  --}}
+    <div class="page-break"></div>
+    {{--  salto de pagina  --}}
+    <div class="row justify grande">
+        <b>
+            <u>
+                ESTE DOCUMENTO ES UNA CONSTANCIA, NO UN PERMISO DE CONSTRUCCIÓN NI UNA LICENCIA DE FUNCIONAMIENTO. ES
+                EXCLUSIVAMENTE INFORMATIVO SOBRE EL POSIBLE USO DEL INMUEBLE QUE TRATA, ASÍ MISMO, NO ES UN PERMISO
+                PARA OPERAR PROVISIONALMENTE
+            </u>
+        </b>
+    </div><br>
+    <div class="row grande">
       RESTRICCIONES:
-    </div>
-    <div class="row justify">
+    </div><br>
+    <div class="row justify grande">
       Para cualquier acto de ocupación y/o construcción con el uso propuesto, el propietario deberá obtener autorización
       ante
       esta Presidencia Municipal presentando:
-      <ul>
-        <li>1. Constancia de propiedad o contrato de arrendamiento y pago del impuesto predial del año fiscal
-          correspondiente. Forma
-          R-1 de la Secretaría de Hacienda y Crédito Público. Factibilidad de agua potable y alcantarillado por parte de
-          la
-          JIAPAZ, factibilidad de energía eléctrica por parte de la CFE, ambas sin detrimento del abastecimiento de los
-          predios
-          contiguos. Para todo acto de construcción o la colocación de cualquier anuncio, deberá obtener la autorización
-          de esta
-          Secretaría, por lo que tramitará la licencia de construcción correspondiente.
-        </li><br>
-        <li>2.Deberá presentar dictamen positivo por parte de Protección Civil en un plazo NO mayor de 10 días a
-          partir de la fecha
-          de expedición y Constancia de Seguridad Estructural del inmueble para el fin propuesto.
-        </li>
-        <li>3. Tramitar la Licencia Ambiental Municipal ante el Departamento de Ecología Medio Ambiente, de esta
-          Secretaría.
-        </li>
-        <li>4. PARA SU FUNCIONAMIENTO DEBERÁ OBTENER EL PADRÓN MUNICIPAL.
-        </li>
-        <li>5. Deberá contar con un cajón de estacionamiento por cada 40 m2 de ocupación, todos dentro de los límites de
-          su
-          propiedad, o presentar ante esta Secretaría en un plazo no mayor de 20 días un contrato de arrendamiento por
-          el número
-          de cajones solicitados en un predio cercano a 250 m. No ocupará las calles circundantes para estacionamiento
-          de clientes
-          ni como área de operaciones. Queda PROHIBIDO apartar lugares de estacionamiento en la vía pública, así como
-          colocar
-          objetos que obstaculicen el mismo. Así como impedir o estorbar, sin motivo justificado, el uso de la vía
-          pública y la
-          libertad de tránsito de las personas.
-        </li>
-        <li>6. Este permiso quedará inválido y sin vigencia al presentarse ante este Ayuntamiento queja por parte de los
-          vecinos de
-          la zona, conflictos viales u otros.
-        </li>
-        <li>7. El presente documento tiene vigencia de UN AÑO a partir de su fecha de expedición.
-        </li>
-      </ul>
-    </div>
-    <div class="row">
+      <br>
+        @php
+            echo nl2br($compatibility->resticciones);
+        @endphp
+    </div><br>
+    <div class="row grande">
       OBSERVACIONES:
-    </div>
-    <div class="row">
-      Se condiciona la presente, al estricto cumplimiento de las restricciones marcadas y a la integración del
-      expediente en
-      esta Secretaría en un plazo no mayor a 30 días hábiles a partir de su fecha de expedición, de lo contrario la
-      Secretaría
-      de Finanzas y Tesorería Municipal ejecutará las sanciones correspondientes conforme lo marca la ley para estos
-      casos,
-      con la REVOCACIÓN de la licencia correspondiente; y demás acciones que se estimen oportunas a efecto de dar
-      cumplimiento
-      con la normatividad en materia de funcionamiento y operación de giros comerciales.
-    </div><br><br>
-    <div class="row">
+    </div><br>
+    <div class="row grande">
+      @php
+          echo nl2br($compatibility->observaciones);
+      @endphp
+    </div><br>
+    <div class="row uppercase justify grande">
       YO, {{ $applicant->nombre }}, RESPONSABLE DEL USO DEL INMUEBLE UBICADO
       EN {{ $license->property->calle }} {{ $license->property->no }}, {{ $license->property->colonia }}, ENTIENDO LOS ALCANCES INFORMATIVOS DE ESTA CONSTANCIA Y ESTOY DE
       ACUERDO EN
       QUE CUALQUIER INCUMPLIMIENTO A LAS CONDICIONES Y/O REQUISITOS PREVISTOS EN LA PRESENTE O CUALQUIER ALTERACIÓN O
-      MODIFICACIÓN AL USO O GIRO PROPUESTO DE------------------------ DEJARÁ SIN EFECTO LA VIGENCIA DEL PRESENTE
+      MODIFICACIÓN AL USO O GIRO PROPUESTO DE {{ $compatibility->uso_propuesto }} DEJARÁ SIN EFECTO LA VIGENCIA DEL PRESENTE
       DOCUMENTO
       GENERANDO A SU VEZ LA SANCIÓN CORRESPONDIENTE.
     </div>
-    <br><br>
-    <div class="row">
-      FIRMA DE CONFORMIDAD
-    </div>
-    <div class="row center">
-      <b>A T E N T A M E N T E</b>
-    </div>
-    <br><br><br><br>
-    <div class="row center">
+    <br>
+    <div class="row justify grande">
+        El presente acto administrativo cuenta con firma electrónica del servidor público competente,
+        amparada por un certificado vigente a la fecha de la elaboración
+        y es valido de conformidad con lo dispuesto en la ley de firma electrónica del estado de Zacatecas.
+    </div><br>
 
-      “SUFRAGIO EFECTIVO, NO REELECCIÓN”<br>
-      <b>LA SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE<br>
-        M. ARQ. CARLA DANIELA MALDONADO RIOS<br>
-      </b>
-    </div>
-    <br><br><br>
-    <table width="100%">
-      <tr>
-        @if (!is_null($validity))
-            <td>Zacatecas, Zacatecas; a {{ $validity->fecha_autorizacion->format('d-m-Y') }} </td>
-        @else
-            <td>Zacatecas, Zacatecas; a { VISTA PREVIA }.</td>
+    <div class="row center">
+        @if ($license->qr_code)
+            <b class="grande">Para verificar la autenticidad de este documento, escanee el siguiente código QR</b><br>
+            <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->qr_code}}" height="100px"><br>
         @endif
-
-        <td class="center">
-          <span>
-            LIC. MA GUADALUPE DE SANTIAGO MURILLO <br>
-            JEFA DEL DPTO. DE PLANEACIÓN Y <br> DESARROLLO URBANO
-          </span>
-        </td>
-      </tr>
-    </table>
+    </div>
+    <div class="row justify chica2">
+        <i>
+            El H. Ayuntamiento de Zacatecas con domicilio en Av. Héroes de Chapultepec N° 1110,  Col. Lázaro Cárdenas,
+            de la ciudad de Zacatecas es el responsable del uso, tratamiento y destino de sus datos personales.
+            Los datos proporcionados serán utilizados para la expedición de este documento. Si desea conocer nuestro aviso
+            de privacidad completo, o tiene alguna duda o aclaración, favor de consultar la siguiente dirección
+            <u>"http://capitaldezacatecas.gob.mx"</u> o comunicarse al tel. 4929239421 ext. 174
+        </i>
   </main>
-  <footer>
+  {{--  <footer>
     <b>Av. Héroes de Chapultepec N° 1110 Col. Lázaro Cárdenaz, Zacatecas, Zac. C.P. 98040 Tel. 92 3 94 21</b>
-  </footer>
+  </footer>  --}}
 </body>
 
 </html>

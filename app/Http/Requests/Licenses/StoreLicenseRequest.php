@@ -33,6 +33,8 @@ class StoreLicenseRequest extends FormRequest
      */
     public function rules()
     {
+        $licenseType = $this->input('license_type_id');
+
         $minConstValue = self::setMinConstValue();
         $maxConstValue = self::setMaxConstValue();
 
@@ -44,12 +46,8 @@ class StoreLicenseRequest extends FormRequest
             $this->input('license_type_id')
         );
 
-
-        return [
-            'license_type_id'   => 'required|integer|exists:license_types,id',
-            // 'property_id'       => 'required|integer|exists:properties,id',
-
-            'property'            => [Rule::requiredIf($this->input('license_type_id') != 20 && $this->input('license_type_id') != 13), 'array'],
+        $propertyObject = [
+            'property'          => 'required|array',
             'property.calle'      => 'sometimes|string',
             'property.no'         => 'sometimes|string',
             'property.colonia'    => 'sometimes|string',
@@ -57,6 +55,9 @@ class StoreLicenseRequest extends FormRequest
             'property.manzana'    => 'sometimes|string',
             'property.lote'       => 'sometimes|string',
             'property.no_predial' => 'sometimes|string',
+            'property.comunidad'  => 'sometimes|string',
+            'property.cuartel'    => 'sometimes|string',
+            'property.zona'       => 'sometimes|string|nullable',
             'property.clave_catastral'   => 'sometimes|string',
             'property.sup_terreno'       => 'sometimes|numeric',
             'property.sup_construida'    => 'sometimes|numeric',
@@ -64,16 +65,21 @@ class StoreLicenseRequest extends FormRequest
             'property.latitud'           => 'sometimes|string',
             'property.longitud'          => 'sometimes|string',
             'property.mapa'              => 'sometimes|string',
+            'property.cuartel'           => 'sometimes|string',
+        ];
 
-            'backgrounds'                      => [Rule::requiredIf($isConstruction)],
-            'backgrounds.data.*.prior_license_id'           =>
-                [Rule::requiredIf(is_null($this->input('backgrounds.data.*.physical_prior_license_id'))),'nullable','integer','exists:licenses,id'],//? digital background
-            'backgrounds.data.*.physical_prior_license_id'  =>
-                [Rule::requiredIf(is_null($this->input('backgrounds.data.*.prior_license_id'))),'nullable','string'],//? physical background
-            'backgrounds.data.*.fecha'  =>
-                [Rule::requiredIf(is_null($this->input('backgrounds.data.*.prior_license_id'))),'nullable','date'],//?required if is physical background
+        $stgSmtNll = 'sometimes|string|nullable';
+        $ownerObject = [
+            'owner'                   => 'array',
+            'owner.nombre_apellidos'  => $stgSmtNll,
+            'owner.rfc'               => $stgSmtNll,
+            'owner.domicilio'         => $stgSmtNll,
+            'owner.ocupacion'         => $stgSmtNll,
+            'owner.telefono'          => $stgSmtNll,
+        ];
 
-            'construction'                      => [Rule::requiredIf($isConstruction),'nullable','array'],
+        $constructionObject = [
+            'construction'                           => 'nullable|array',
             'construction.sotano'                    => 'sometimes|numeric|min:0',
             'construction.planta_baja'               => 'sometimes|numeric|min:0',
             'construction.mezzanine'                 => 'sometimes|numeric|min:0',
@@ -86,50 +92,104 @@ class StoreLicenseRequest extends FormRequest
             'construction.descubierta'               => 'sometimes|numeric|min:0',
             'construction.sup_total_amp_reg_const'   => ['sometimes','numeric',"min:{$minConstValue}", "max:{$maxConstValue}"],
             'construction.descripcion'               => 'sometimes|string',
+        ];
 
-            //?owner data is required for dros, if user is particular, the owner's data will be those of the user himself
-            'owner'                   => [Rule::requiredIf($isConstruction), 'array'],
-            // 'required_if:propietario.ownerFlag,flase|array',
-            'owner.nombre_apellidos'  => 'sometimes|string',
-            'owner.rfc'               => 'sometimes|string',
-            'owner.domicilio'         => 'sometimes|string',
-            'owner.ocupacion'         => 'sometimes|string',
-            'owner.telefono'          => 'sometimes|string',
+        $backgroundsObject = [
+            // 'backgrounds'                      => [Rule::requiredIf($isConstruction)],
+            'backgrounds.data.*.prior_license_id'           =>
+                [Rule::requiredIf(is_null($this->input('backgrounds.data.*.physical_prior_license_id'))),'nullable','integer','exists:licenses,id'],//? digital background
+            'backgrounds.data.*.physical_prior_license_id'  =>
+                [Rule::requiredIf(is_null($this->input('backgrounds.data.*.prior_license_id'))),'nullable','string'],//? physical background
+            'backgrounds.data.*.fecha'  =>
+                [Rule::requiredIf(is_null($this->input('backgrounds.data.*.prior_license_id'))),'nullable','date'],//?required if is physical background
+        ];
 
-            'ad' => [Rule::requiredIf($isAd), 'array', 'nullable'],
-            'ad.colocacion'    => [Rule::requiredIf($isAd), 'string'],
-            'ad.tipo'          => [Rule::requiredIf($isAd), 'string'],
-            'ad.cantidad'      => 'integer|sometimes|nullable',
-            'ad.largo'         => 'numeric|sometimes|min:0|nullable',
-            'ad.ancho'         => 'numeric|sometimes|min:0|nullable',
-            'ad.alto'          => 'numeric|sometimes|min:0|nullable',
-            'ad.colores'       => 'string|sometimes|nullable',
-            'ad.texto'         => 'string|sometimes|nullable',
-            'ad.fecha_inicio'  => 'date|sometimes|nullable',
-            'ad.fecha_fin'     => 'date|sometimes|nullable',
+        $adsObject = [
+            'ads.*.tipo'          => 'string',
+            'ads.*.cantidad'      => 'integer|sometimes|nullable',
+            'ads.*.largo'         => 'numeric|sometimes|min:0|nullable',
+            'ads.*.ancho'         => 'numeric|sometimes|min:0|nullable',
+            'ads.*.alto'          => 'numeric|sometimes|min:0|nullable',
+            'ads.*.colores'       => 'string|sometimes|nullable',
+            'ads.*.texto'         => 'string|sometimes|nullable',
+            'ad.meses'          => 'integer|sometimes|nullable|max:11',
+        ];
 
-            // 'boundaries' => [Rule::requiredIf($this->input('license_type_id') == 16), 'array'],
-            // 'boundaries.descripcion'    => 'string|required|nullable',
-            // 'compatibilidad.ubicacion'  => 'string|required|nullable',
-
-            'safety' => [Rule::requiredIf($this->input('license_type_id') == 14), 'array'],
+        $safetyObject = [
+            'safety' => 'array',
             'safety.destino'  => 'integer',
+        ];
 
-            'uses' => [Rule::requiredIf($this->input('license_type_id') == 16), 'array'],
+        $usesObject = [
+            'uses' => 'array',
             'uses.medidas_colindancia'    => 'string|sometimes',
             'uses.uso_actual'             => 'string|sometimes',
             'uses.uso_propuesto'          => 'string|sometimes',
+        ];
 
-            's_f_d' => [Rule::requiredIf($this->input('license_type_id') == 22), 'array'],
-            's_f_d.descripcion'               => 'string|sometimes|nullable',
-            's_f_d.medidas_colindancia'       => 'string|sometimes|nullable',
-            // 'compatibilidad.m2_ocupacion'   => 'numeric|sometimes|nullable',
+        $sfdObject = [
+            's_f_d' => 'array',
+            's_f_d.actividades'                 => 'array',
+            's_f_d.actividades.*.actividad'             => 'string|required',
+            's_f_d.actividades.*.medidas_colindancia'   => 'string|required',
+            's_f_d.actividades.*.descripcion'           => 'string|required',
+            's_f_d.actividades.*.observaciones'         => 'string|required',
+            's_f_d.actividades.*.lotes'               => 'array|nullable|sometimes',
+            's_f_d.actividades.*.lotes.*.clave'       => 'nullable|sometimes|string',
+            's_f_d.actividades.*.lotes.*.colonia'     => 'nullable|sometimes|string',
+            's_f_d.actividades.*.lotes.*.lote'        => 'nullable|sometimes|string',
+            's_f_d.actividades.*.lotes.*.manzana'     => 'nullable|sometimes|numeric',
+            's_f_d.actividades.*.lotes.*.superficie'  => 'nullable|sometimes|numeric',
+            's_f_d.actividades.*.lotes.*.propietario' => 'nullable|sometimes|string',
+        ];
 
+        $validityObject = [
             'validity'                      => 'sometimes|nullable',
             'validity.fecha_autorizacion'   => 'sometimes|date|nullable',
             'validity.fecha_fin_vigencia'   => 'sometimes|date|nullable',
             'validity.dias_total'           => 'sometimes|int|nullable',
         ];
+
+        $selfBuildObject = [
+            'self_build'                => 'sometimes|nullable',
+            'self_build.tipo_obra'      => 'required|string',
+            'self_build.construction'   => 'required|string',
+            'self_build.nivel'          => 'required|string',
+            'self_build.coadyuvante'    => 'required|string',
+            'self_build.sup_total'      => 'required|numeric',
+            'self_build.calle'          => 'required|string',
+            'self_build.colonia'        => 'required|string',
+            'self_build.propietario'    => 'required|string',
+        ];
+
+        $rules = [
+            'license_type_id'   => 'required|integer|exists:license_types,id',
+        ];
+        $rules = array_merge($rules, $validityObject);
+
+        if ($licenseType != 20 && $licenseType != 13){
+            $rules = array_merge($rules, $propertyObject);
+        }
+        if ($isConstruction) {
+            $rules = array_merge($rules, $backgroundsObject, $constructionObject, $ownerObject);
+        }
+        if ($isAd) {
+            $rules = array_merge($rules, $adsObject, $ownerObject);
+        }
+        if($licenseType == 13){
+            $rules = array_merge($rules, $selfBuildObject);
+        }
+        if($licenseType == 14){
+            $rules = array_merge($rules, $safetyObject);
+        }
+        if($licenseType == 16){
+            $rules = array_merge($rules, $usesObject);
+        }
+        if($licenseType == 22){
+            $rules = array_merge($rules, $sfdObject);
+        }
+        return $rules;
+
     }
 
     public function setMinConstValue()
@@ -138,9 +198,9 @@ class StoreLicenseRequest extends FormRequest
             case 1: return '1'; break;
             case 2: return '45'; break;
             case 3: return '1000'; break;
-            case 5: return '50'; break;
+            case 5: return '1'; break;
             case 27: return '45'; break;
-            default: return '1'; break;
+            default: return '0'; break;
         }
     }
 

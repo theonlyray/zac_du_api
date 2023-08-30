@@ -57,6 +57,8 @@ class CheckLicenseType
             return 'completion';
         }elseif ($license_type_id == 24) {
             return 'break_pavement';
+        }elseif ($license_type_id == 29) {
+            return 'alignment';
         }
     }
 }

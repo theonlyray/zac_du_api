@@ -17,7 +17,7 @@ class Order extends Model
     protected $fillable = [
             'total','no_ref_pago','validada','pagada',
             'fecha_registro','fecha_actualizacion',
-            'fecha_autorizacion', 'hash',
+            'fecha_autorizacion', 'hash', 'validator_id',
             'creator_id','license_id',
     ];
 

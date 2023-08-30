@@ -18,7 +18,7 @@ class LicensePolicy
      *
      * @return void
      */
-    protected $flagRole, $flagDepartment, $flagOwner;
+    protected $flagRole, $flagDepartment, $flagOwner, $flagValidation;
     public function __construct()
     {
         $this->flagRole         = true;
@@ -54,16 +54,10 @@ class LicensePolicy
                     if ($user->hasRole(['dro','particular'])) $this->flagValidation  = true;
                     break;
                 case 4:
-                    if ($user->can('license.validateEntry')) $this->flagValidation  = true;
+                    if ($user->can('license.validateDocsPlans')) $this->flagValidation  = true;
                     break;
-                case 5:
-                    if ($user->can('license.validateFirstReview')) $this->flagValidation  = true;
-                    break;
-                case 7:
-                    if ($user->can('license.validateSecondReview')) $this->flagValidation  = true;
-                    break;
-                case 9:
-                    if ($user->can('license.validateThirdReview')) $this->flagValidation  = true;
+                case 6:
+                    if ($user->can('license.authorize')) $this->flagValidation  = true;
                     break;
                 default:
                     $this->flagValidation   = false;

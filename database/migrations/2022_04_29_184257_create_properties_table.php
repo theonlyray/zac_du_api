@@ -28,6 +28,8 @@ class CreatePropertiesTable extends Migration
                 ->nullable();
             $table->string('clave_catastral', 80)
                 ->default('N/A');
+            // $table->string('comunidad', 150)
+            //     ->default('N/A');
                 // ->unique();
             $table->double('sup_terreno')
                 ->default(0.0)
@@ -54,36 +56,21 @@ class CreatePropertiesTable extends Migration
                 ->nullable();
             $table->string('poligono', 80)
                 ->default('Colonias Populares');
-            // $table->string('croquis_ubicacion', 180)
-            //     ->nullable();
-            // $table->string('croquis_url', 180)
-            //     ->nullable();
-            // $table->string('escrituras_ubicacion', 180)
-            //     ->nullable();
-            // $table->string('escrituras_url', 180)
-            //     ->nullable();
-            // $table->string('predial_ubicacion', 180)
-            //     ->nullable();
-            // $table->string('predial_url', 180)
-            //     ->nullable();
-            // $table->string('fachada_ubicacion', 180)
-            //     ->nullable();
-            // $table->string('fachada_url', 180)
-            //     ->nullable();
-            // $table->string('panoramica_ubicacion', 180)
-            //     ->nullable();
-            // $table->string('panoramica_url', 180)
-            //     ->nullable();
             $table->timestamp('fecha_registro')
                 ->useCurrent();
             $table->timestamp('fecha_actualizacion')
                 ->useCurrent();
-            // $table->foreignId('user_id')
-            //     ->constrained('users');
             $table->foreignId('license_id')
                 ->constrained('licenses')
                 ->unique()
                 ->onDelete('cascade');
+        });
+
+        //add column "comunidad" to properties table
+        Schema::table('properties', function (Blueprint $table) {
+            $table->string('comunidad', 150)
+                ->default('N/A')
+                ->after('clave_catastral');
         });
     }
 

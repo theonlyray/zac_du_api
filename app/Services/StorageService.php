@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\IStorageService;
 use Exception;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 

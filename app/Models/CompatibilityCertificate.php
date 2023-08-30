@@ -17,7 +17,8 @@ class CompatibilityCertificate extends Model
         'usos_permitidos', 'usos_prohibidos',
         'usos_condicionales', 'observaciones',
         'land_use_id', 'land_use_description_id',
-        'resticciones', 'license_id',
+        'resticciones', 'license_id', 'resolucion',
+        'programa'
     ];
 
     protected $casts = [

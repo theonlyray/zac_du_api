@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -16,7 +17,7 @@ class CreateCollegeUsersTable extends Migration
         Schema::create('college_users', function (Blueprint $table) {
             $table->id();
             $table->boolean('validado')
-                ->default(false);
+                ->default(true);
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');

@@ -19,12 +19,12 @@ class Property extends Model
     protected $fillable = [
         'calle','no','colonia','seccion','manzana','lote','no_predial',
         'clave_catastral','sup_terreno','sup_construida','sup_no_construida',
-        'agua', 'luz', 'drenaje',
+        'agua', 'luz', 'drenaje', 'comunidad',
         'latitud','longitud','mapa_ubicacion','mapa_url','croquis_ubicacion',
         'croquis_url','escrituras_ubicacion','escrituras_url',
         'predial_ubicacion', 'predial_url','fachada_ubicacion','fachada_url',
         'panoramica_ubicacion', 'panoramica_url', 'poligono',
-        'fecha_registro','fecha_actualizacion',
+        'fecha_registro','fecha_actualizacion', 'cuartel', 'zona'
     ];
 
     protected $hidden = [];

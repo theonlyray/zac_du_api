@@ -16,7 +16,7 @@ class LicenseValidity extends Model
     protected $fillable = [
         'fecha_autorizacion',
         'fecha_fin_vigencia',
-        'dias_total',
+        'dias_total', 'observation',
         'license_id',
     ];
 

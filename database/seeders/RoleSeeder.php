@@ -22,11 +22,11 @@ class RoleSeeder extends Seeder
             ]);
             $directorDpt    = Role::create([
                 'name' => 'directorDpt',
-                'description' => 'Director de Departamento'
+                'description' => 'Jefe de Departamento'
             ]);
             $subDirectorDpt    = Role::create([
                 'name' => 'subDirectorDpt',
-                'description' => 'Subdirector de Departamento'
+                'description' => 'Sub jefe de Departamento'
             ]);
             $jefeUnidadDpt    = Role::create([
                 'name' => 'jefeUnidadDpt',
@@ -324,10 +324,10 @@ class RoleSeeder extends Seeder
                     'name' => 'license.pdf',
                     'description' => 'Consultar PDF de una Solicitud'
                 ])->assignRole($allRoles);
-            Permission::create([
-                    'name' => 'license.validateEntry',
-                    'description' => 'Validar un Ingreso de una Solicitud'
-                ])->assignRole([$allMpi]);
+            // Permission::create([
+            //         'name' => 'license.validateEntry',
+            //         'description' => 'Validar un Ingreso de una Solicitud'
+            //     ])->assignRole([$allMpi]);
             Permission::create([
                     'name' => 'license.validateDocsPlans',
                     'description' => 'Validar Planos y Documentos'

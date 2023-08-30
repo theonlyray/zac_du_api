@@ -31,21 +31,22 @@ class APIPOAuthentication
         $user = $event->user;
 
         $response = Http::acceptJson()
-            ->post('http://10.220.107.112/api/login', [
-                'name' => 'pruebaapi',
-                'password' => 'pruebaapi'
+            ->post('https://sefin.capitaldezacatecas.gob.mx/api/login', [
+                'name' => 'dumaapi',
+                'password' => 'iW7K6E9@srxn'
             ]);
 
         abort_if(!$response->successful(),500,'Error de autenticacion (API), intentelo más tarde.');
         $response = (json_decode($response));
 
-        if (!is_null($user) && $user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])){
-            $depData = DepartmentUser::firstWhere('user_id', $user->id);
-            $depData->fill(['api_op_token' =>$response->token]);
-            $depData->save();
 
-            return;
-        }
+        // if (!is_null($user) && $user->hasRole(['directorDpt', 'subDirectorDpt', 'jefeUnidadDpt', 'colaboradorDpt'])){
+        //     $depData = DepartmentUser::firstWhere('user_id', $user->id);
+        //     $depData->fill(['api_op_token' =>$response->token]);
+        //     $depData->save();
+
+        //     return;
+        // }
         return $response->token;
     }
 }

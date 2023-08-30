@@ -33,12 +33,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('autenticacion')->group(function () {
     Route::get('/colegios', [AuthController::class, 'getColleges']);
+    Route::get('/departamentos', [AuthController::class, 'getDepartments']);
     // Route::get('/usuarios', [AuthController::class, 'getUsers']);
     Route::post('/registro', [AuthController::class, 'signUp']);
     Route::get('/login', [AuthController::class, 'logInToken'])
         ->middleware('auth:sanctum');
     Route::post('/login', [AuthController::class, 'logIn']);
-    // Route::post('/recuperacion', [AuthController::class, 'resetPassword']);
+    Route::get('/docs', [AuthController::class, 'docs']);
+    Route::post('/recuperacion', [AuthController::class, 'resetPassword']);
+    Route::get('/license', [AuthController::class, 'license']);
+    // Route::get('/truncate', [AuthController::class, 'truncateLicensesTable']);
 });
 
 
@@ -46,16 +50,20 @@ Route::prefix('autenticacion')->group(function () {
  * Payments routes bank integration
  */
 Route::post('/pagos', [PaymentController::class, 'store']);
+Route::get('/pagos', [PaymentController::class, 'index']);
+Route::patch('/pagos', [PaymentController::class, 'syncOrders']);
 
 /**
  * Payments routes
  */
-Route::apiResource('/pagos', PaymentController::class);
+// Route::apiResource('/pagos', PaymentController::class)
+//     ->only(['index', 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('autenticacion')->group(function () {
         Route::get('/logout', [AuthController::class, 'logOut']);
+        Route::post('/logOutToken', [AuthController::class, 'logOutToken']);
         Route::get('/roles', [AuthController::class, 'getRoles']);
         Route::patch('/roles/{role}', [AuthController::class, 'updateRole']);
         Route::get('/permisos', [AuthController::class, 'getPermissions']);
@@ -130,12 +138,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('licencias')->group(function () {
         Route::post('/pagos', [PaymentController::class, 'syncOrders']);
+        Route::post('/{license}/generate-qr', [LicenseController::class, 'generateQR']);
         Route::patch('/{license}/requisitos/{requirements}', [LicenseController::class, 'updateRequirement']);
         Route::patch('/{license}/mapa', [LicenseController::class, 'updateMap']);
         Route::delete('/{license}/antecendente/{background}', [LicenseController::class, 'background']);
+        Route::delete('/{license}/actividad/{sfd}', [LicenseController::class, 'sfd']);
+        Route::delete('/{license}/lote/{lot}', [LicenseController::class, 'lot']);
+        Route::delete('/{license}/anuncio/{ad}', [LicenseController::class, 'ad']);
         Route::patch('/{license}/validaciones', [LicenseController::class, 'validations']);
         Route::patch('/{license}/observaciones', [LicenseController::class, 'observations']);
         Route::post('/{license}/sublicencia', [LicenseController::class, 'sublicense']);
+        Route::post('/{license}/refrendo', [LicenseController::class, 'countersign']);
         Route::get('/{license}/licencia', [PdfController::class, 'license']);
         Route::get('/{license}/preview', [PdfController::class, 'preview']);
         Route::get('/{license}/solicitud', [PdfController::class, 'request']);
@@ -157,4 +170,9 @@ Route::middleware('auth:sanctum')->group(function () {
         'orden'     => 'order',
     ]);
 
+    /**
+     * Uses routes
+     */
+    Route::apiResource('usos', LandUsesController::class)
+        ->parameters(['usos' => 'landUse']);
 });

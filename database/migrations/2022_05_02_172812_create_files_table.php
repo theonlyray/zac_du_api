@@ -28,7 +28,7 @@ class CreateFilesTable extends Migration
             $table->boolean('para')
                 ->default(true)
                 ->nullable()
-                ->comment('true - dro | false - particular');
+                ->comment('true - dro | false - particular | null - index');
             $table->foreignId('college_id')
                 ->nullable()
                 ->constrained('colleges');

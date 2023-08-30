@@ -9,36 +9,29 @@ class LicenseObserver
 {
     public function creating(License $license)
     {
-        if (! \App::runningInConsole()) {
-            $license->user_id = auth()->user()->id;
-            gc_collect_cycles();
-        }
+        // if (! \App::runningInConsole()) {
+        $license->user_id = auth()->user()->id;
+        gc_collect_cycles();
+        // }
     }
 
     public function created(License $license)
     {
         $year = Carbon::now()->year;
-        if (! \App::runningInConsole()) {
-            //?foleado para prorrogas, terminaciones
-            $counter = License::where('estatus','<>',0)->count('id');
-            // $license->id
-            if ($license->license_type_id == 6) $license->folio  = "PRO-{$counter}-{$year}";
-            else if ($license->license_type_id == 23) $license->folio  = "TER-{$counter}-{$year}";
-            $license->saveQuietly();
-            gc_collect_cycles();
-        }
-    }
-
-    public function updating(License $license)
-    {
-        //?foleado gral
-        $counter = License::where('estatus', '<>', 0)->count('id')+1;
-        $year    = Carbon::now()->year;
+        $counter = License::where('estatus','<>',0)->count('id');
         $acronym = self::setFolio($license);
-        if ($license->estatus == 'Docs. Cargados' ||
-            $license->estatus == 'Cancelado' ||
-            $license->estatus == 'Rechazado')
-            $license->folio  = "{$acronym}-{$counter}-{$year}";
+
+        // $license->id
+        if ($license->license_type_id == 6){ $license->folio  = "PRO-{$license->id}-{$year}"; }
+        elseif ($license->license_type_id == 23){ $license->folio  = "TER-{$license->id}-{$year}"; }
+        else{ $license->folio  = "{$acronym}-{$license->id}-{$year}"; }
+
+        if ($license->license_type_id == 22) {
+            $license->liberada = false;
+        }
+
+        $license->saveQuietly();
+        gc_collect_cycles();
     }
 
     public function setFolio(License $license)
@@ -50,7 +43,7 @@ class LicenseObserver
             case 4: return 'PB'; break;
             case 5: return 'PTM'; break;
             case 6: return 'POR'; break;
-            case 7: return 'NOA'; break;
+            case 7: return 'NO'; break;
             case 8: return 'PITE'; break;
             case 9: return 'PIAT'; break;
             case 10: return 'PIESC'; break;
@@ -72,6 +65,7 @@ class LicenseObserver
             case 26: return 'LCTME'; break;
             case 27: return 'LCTMA'; break;
             case 28: return 'PC'; break;
+            case 29: return 'A'; break;
             default: return 'undef'; break;
         }
     }

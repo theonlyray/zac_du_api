@@ -13,7 +13,8 @@ class SFD extends Model
 
     protected $fillable = [
         'descripcion', 'medidas_colindancia',
-        'm2_ocupacion', 'license_id',
+        'm2_ocupacion', 'license_id', 'observaciones',
+        'actividad',' sustento'
     ];
 
     protected $casts = [
@@ -23,5 +24,10 @@ class SFD extends Model
     public function license()
     {
         return $this->belongsTo(License::class);
+    }
+
+    public function lots()
+    {
+        return $this->hasMany(Lot::class);
     }
 }

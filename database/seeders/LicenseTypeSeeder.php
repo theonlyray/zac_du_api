@@ -66,7 +66,7 @@ class LicenseTypeSeeder extends Seeder
                 "particular"     => true,
             ],
             [
-                "nombre"        => "NÚMERO OFICIAL Y ALINEAMIENTO",
+                "nombre"        => "NÚMERO OFICIAL",
                 "descripcion"   => null,
                 "nota"          => null,
                 "activo"        => true,
@@ -173,7 +173,7 @@ class LicenseTypeSeeder extends Seeder
                 "nombre"        => "ANUNCIOS EN VEHÍCULOS",
                 "descripcion"   => null,
                 "nota"          => null,
-                "activo"        => true,
+                "activo"        => false,
                 "department_id" => 2,
                 "particular"     => true,
             ],
@@ -241,6 +241,14 @@ class LicenseTypeSeeder extends Seeder
                 "activo"        => true,
                 "department_id" => 1,
                 "particular"     => false,
+            ],
+            [
+                "nombre"        => "ALINEAMIENTO",
+                "descripcion"   => null,
+                "nota"          => null,
+                "activo"        => true,
+                "department_id" => 1,
+                "particular"     => true,
             ],
         ]);
     }

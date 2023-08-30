@@ -62,6 +62,11 @@ class User extends Authenticatable
         ->dontSubmitEmptyLogs();
     }
 
+    public function routeNotificationForWhatsApp()
+    {
+        return $this->applicantData()->first()->celular;
+    }
+
     /**
      * Get the applicant data associated with the user.
      */
@@ -145,6 +150,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's credentials.
+     */
+    public function credentials()
+    {
+        return $this->hasOne(Credential::class);
+    }
+
+    /**
      * returns the list of users according to the user role in the request
      * @param string role to search
      * @return array
@@ -152,15 +165,16 @@ class User extends Authenticatable
     public function getUsersByRole($roleName)
     {
         $users = [];
+        $withArray = ['college', 'department', 'specialties', 'applicantData', 'roles', 'unit'];
 
         if (self::hasRole(['super-admin', 'jefeSDUMA'])) {
             $users = self::whereHas('roles', function($q) use ($roleName) {
                 $q->where('name',$roleName);
-            })->get();
+            })->with($withArray)->get();
 
         }else{
-            $withArray = ['college', 'department', 'specialties', 'applicantData', 'roles', 'unit'];
 
+            //?preparing query according to the role and dep or college
             if (self::hasRole(['directorDpt','subDirectorDpt', 'jefeUnidadDpt','colaboradorDpt'])){
                  $relation = 'department';
                  $column = 'department_id';
@@ -172,18 +186,28 @@ class User extends Authenticatable
                 $idsArray = auth()->user()->college->pluck('id')->toArray();
             }
 
+            //?retriving dros and particulars
             if (in_array($roleName, ['dro', 'particular'])){
-                $users = self::whereHas('roles', function($q) use ($roleName) {
+                if (self::hasRole(['directorDpt','subDirectorDpt', 'jefeUnidadDpt','colaboradorDpt'])){ //?mpio
+                    $users = self::whereHas('roles', function ($q) use ($roleName) {
+                        $q->where('name',$roleName);
+                    })->with($withArray)->get();
+                }else { //?college
+                    $users = self::whereHas('roles', function ($q) use ($roleName) {
+                        $q->where('name',$roleName);
+                        })->whereHas($relation, function ($q) use ($column,$idsArray) {
+                            $q->whereIn($column,$idsArray);
+                        })->with($withArray)->get();
+                }
+            }else{ //?mpio and col colaborator
+                $users = self::whereHas('roles', function ($q) use ($roleName) {
                     $q->where('name',$roleName);
-                })->with($withArray)->get();
-            }else{ //mpio and col
-                $users = self::whereHas('roles', function($q) use ($roleName) {
-                    $q->where('name',$roleName);
-                    })->whereHas($relation, function($q) use ($column,$idsArray) {
+                    })->whereHas($relation, function ($q) use ($column,$idsArray) {
                         $q->whereIn($column,$idsArray);
                     })->with($withArray)->get();
             }
         }
+
         return $users;
     }
 }

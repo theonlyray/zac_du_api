@@ -22,7 +22,7 @@
             left: 0cm;
             right: 0cm;
             height: 2cm;
-            background-color: #a31831;
+            background-color: #008538;
             color: white;
             text-align: center;
             line-height: 1.5cm;
@@ -32,7 +32,7 @@
             margin-right: 2cm;
             font-family: Arial, Helvetica, sans-serif;
             margin-top: 120px;
-            font-size: 12px;
+            font-size: 15px;
         }
         .img-contain {
             width: 70px;
@@ -259,26 +259,30 @@
 </head>
 
 <body>
-
     <header>
         <div class="row">
-            <div class="s6 center">
-                <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
+            <div class="s6 left">
+                <img src="https://permisos.capitaldezacatecas.gob.mx/img/logo/logo-clear-v.png" height="100px">
             </div>
-            <div class="s6 border left" style="padding:5px;">
+            <div class="s6 right" style="padding:5px;">
                 <b style="font-size:18px;">Presidencia Municipal de Zacatecas</b>
                 <span style="font-size:11px;">
-                    Secretaría de Desarrollo Urbano y Medio Ambiente<br>
-                    Departamento de Permisos y Licencias para la Construcción
-                </span>
+                Secretaría de Desarrollo Urbano y Medio Ambiente</span><br>
+                <span style="font-size:11px;">
+                    Departamento de Permisos y Licencias para la Construcción</span>
                 <b style="font-size:13px;">
-                    LICENCIA DE CONSTRUCCIÓN Folio No. <span style="font-size:20px;color:rgb(175, 63, 63)">{{ $license->folio }}</span>
-                </b>
-                <b style="font-size:13px;">Página <span class=" pagenum" style="font-size:13px;"></span></b>
+                <div class="row right">
+                <b style="font-size:11px;">
+                    {{ $validity_date}}
+                </b><br>
+                <b style="font-size:11px;">
+                    NÚMERO DE OFICIO {{ $license->folio }}
+                </b><br>
+                </div>
             </div>
         </div>
-    </header>
-    <main>
+      </header>
+    <main><br><br>
         <div class="row">
             <b> A QUIEN CORRESPONDA </b> <br>
             <b>PRESENTE:</b> <br>
@@ -296,42 +300,40 @@
         </div>
         <br>
         <div class="row center">
-            <b> INTROCUCCIÓN DE AGUA POTABLE Y/O DRENAJE </b>
+            <b> {{ $license->construction->descripcion}} </b>
         </div><br>
         <div class="row justify">
-            Por lo que deberá liquidar en tesoreria la cantidad de: $ {{ number_format($order->total,2) }} ({{ $order->totalDesc }}). Concediendole este
+            Por lo que deberá liquidar en tesoreria la cantidad de: ${{ number_format($order->total,2) }} ({{ $order->totalDesc}}). Concediendole este
             permiso por 3 diás a partir de la fecha del presente, debiendo tomar las medidas de seguridad necesarias al
-            ejecutar dicho trabajo.
+            ejecutar dicho trabajo.<br><br>
             NOTA: EL PROPIETARIO SE COMPROMETE A COMPACTAR LOS ESTRATOS A UN 90% CON MATERIALES PRODUCTO DE LA
             EXCAVACIÓN PARA EVITAR POSIBLES HUNDIMIENTOS Y EVITAR FUTURAS REPARACIONES. UNA VEZ QUE CONCLUYA CON LOS
-            TRABAJOS, LE AGRADECEREMOS COMUNICARLO AL TELEFONO 92-3-94-21, EXTENSIÓN 1667 DEL DEPARTAMENTO DE
-            MANTENIMIENTO. DE LA SECRETARIA DE SERVICIOS PUBLICOS, PARA PROCEDER A LA RPARACIÓN DEL PAVIMENTO.
+            TRABAJOS, LE AGRADECEREMOS COMUNICARLO AL TELEFONO 92-3-94-21, EXTENSIÓN 273 DEL DEPARTAMENTO DE
+            MANTENIMIENTO DE LA SECRETARIA DE SERVICIOS PUBLICOS, PARA PROCEDER A LA REPARACIÓN DEL PAVIMENTO.
         </div>
         <br>
         <div class="row justify">
-            ** El presente queda condicionado, a que los trabajos deberán ser realizados a partir de las <b> 10:00 de la
+            ** El presente queda condicionado, a que los trabajos deberán ser realizados a partir de las <b>10:00 p.m. de la
                 noche hasta las 6 a.m. </b> para evitar molestias a los transeuntes, además deberá de solicitar la
-            autorización correscondiente a la Dirección de TRansito del Estado. **
+            autorización correscondiente a la Dirección de Transito del Estado. **
         </div>
-        <br><br><br><br>
-        <div class="row center">
-            <b>
-                JEFE DE DEPPARTAMENTO DE PERMIOS Y <br>
-                LICENCIAS PARA LA CONSTRUCCIÓN <br>
-
-            </b>
-        </div>
-        <br><br><br>
-        <hr>
-        <div class="row center">
-            <b>
-                M. ARQ. CARLA DANUELA MALDONADO RIOS
-            </b>
-        </div>
+        <br>
+        <div class="row justify grande">
+            El presente acto administrativo cuenta con firma electrónica del servidor público competente,
+            amparada por un certificado vigente a la fecha de la elaboración
+            y es valido de conformidad con lo dispuesto en la le de firma electrónica del estado de Zacatecas.
+        </div><br><br>
+        @if ($license->qr_code)
+            <div class="row">
+                <div class="center">
+                <b class="grande">Para verificar la autenticidad de este documento, escanee el siguiente código QR</b><br>
+                <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->qr_code}}" height="140px">
+                </div>
+            </div>
+        @endif
     </main>
     <footer>
         <b>Av. Héroes de Chapultepec N° 1110 Col. Lázaro Cárdenaz, Zacatecas, Zac. C.P. 98040 Tel. 92 3 94 21</b>
-
     </footer>
 </body>
 

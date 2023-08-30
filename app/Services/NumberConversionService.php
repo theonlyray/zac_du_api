@@ -7,7 +7,7 @@ class NumberConversionService
     //---------------------------------------------
   // CONSTANTES
   const PREFIJO_ERROR = 'Error: ';
-  const COMA = ',';
+  const COMA = '.';
   const MENOS = '-';
 
   //---------------------------------------------

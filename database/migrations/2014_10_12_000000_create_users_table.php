@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('correo', 150)->unique();
             $table->string('contrasenia', 150);
             $table->boolean('validado')
-                ->default(false);
+                ->default(true);
             $table->timestamp('fecha_registro')
                 ->useCurrent();
             $table->timestamp('fecha_actualizacion')

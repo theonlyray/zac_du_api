@@ -258,8 +258,8 @@
 
   <header>
     <div class="row">
-      <div class="s6 center">
-        <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
+      <div class="s6 left">
+        <img src="https://permisos.capitaldezacatecas.gob.mx/img/logo/logo-clear-v.png" height="130px">
       </div>
       <div class="s6 right" style="padding:5px;">
         <b style="font-size:18px;">Presidencia Municipal de Zacatecas</b>
@@ -268,13 +268,13 @@
           Departamento de Permisos y Licencias para la Construcción
         </span>
         <b style="font-size:13px;">
-          LICENCIA DE CONSTRUCCIÓN<br> Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">{{ $license->folio }}</span>
+          LICENCIA DE CONSTRUCCIÓN<br> Folio No. <span style="font-size:13px;color:rgb(00, 133, 56)">{{ $license->folio }}</span>
         </b><br>
         <b style="font-size:13px;">Página <span class=" pagenum" style="font-size:13px;"></span></b>
       </div>
     </div>
   </header>
-  <main>
+  <main><br>
     <b>I) UBICACIÓN</b>
     <table width="100%" class="border">
       <tr>
@@ -282,17 +282,17 @@
         <td class="border"> {{ $license->property->colonia }}</td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">UBICACIÓN (NÚMERO
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">UBICACIÓN (NÚMERO
           OFICIAL)</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">COLONIA</td>
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">COLONIA</td>
       </tr>
       <tr>
         <td class="border"> {{ $license->property->seccion }} - {{ $license->property->manzana }} - {{ $license->property->lote }}</td>
         <td class="border"> {{ $license->property->no_predial }} </td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">SECCIÓN MANZANA LOTE</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">BOLETA DE IMPUESTO
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">SECCIÓN MANZANA LOTE</td>
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">BOLETA DE IMPUESTO
           PREDIAL NO.</td>
       </tr>
     </table>
@@ -304,8 +304,8 @@
         <td class="border"> {{ $applicantData->calle }} {{ $applicantData->no }}. {{ $applicantData->colonia }} </td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold;">NOMBRE Y APELLIDOS</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">DOMICILIO</td>
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">NOMBRE Y APELLIDOS</td>
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">DOMICILIO</td>
       </tr>
     </table>
     <table width="100%" class="border">
@@ -315,9 +315,9 @@
         <td class="border"> {{ $applicantData->celular }}</td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">No. DE REGISTRO</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">R.F.C</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173);font-weight: bold;">TELÉFONO</td>
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">No. DE REGISTRO</td>
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">R.F.C</td>
+        <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">TELÉFONO</td>
       </tr>
     </table>
     <br>
@@ -330,16 +330,23 @@
         <td class="border"> {{ $license->construction->sup_total_amp_reg_const }}</td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:11px;">SUP. DEL
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">SUP. DEL
           TERRENO</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:11px;">SUP.
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">SUP.
           CONSTRUIDA</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:11px;">SUP. NO
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">SUP. NO
           CONSTRUIDA</td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:11px;">SUP.
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">SUP.
           CUBIERTA POR AMPLIA.
           CONS. O REGULARIZACIÓN</td>
       </tr>
+    </table>
+    <table width="100%" class="border">
+        <tr>
+            <td>
+            {{$license->construction->descripcion}}
+            </td>
+        </tr>
     </table>
     <br>
     <b>IV) ANTECEDENTES</b>
@@ -351,13 +358,13 @@
                     <td class="border"></td>
                 </tr>
                 <tr>
-                    <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                    <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                     No. LICENCIA ANTERIOR FECHA
                     </td>
-                    <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                    <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                     No. LICENCIA ANTERIOR FECHA
                     </td>
-                    <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                    <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                     No. LICENCIA ANTERIOR FECHA
                     </td>
                 </tr>
@@ -374,10 +381,10 @@
                             <td class="border"> {{ $background->fecha->format('d-m-Y') }} </td>
                         </tr>
                         <tr>
-                            <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                            <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                                 No. LICENCIA ANTERIOR
                             </td>
-                            <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                            <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                                 FECHA
                             </td>
                         </tr>
@@ -390,10 +397,10 @@
                             <td class="border"> {{ $priorLicenses[$index]->fecha_actualizacion->format('d-m-Y') }} </td>
                         </tr>
                         <tr>
-                            <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                            <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                                 No. LICENCIA ANTERIOR
                             </td>
-                            <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+                            <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
                                 FECHA
                             </td>
                         </tr>
@@ -410,10 +417,10 @@
         <td class="border"> {{ $license->owner->rfc }} </td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           NOMBRE Y APELLIDOS
         </td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           R.F.C
         </td>
       </tr>
@@ -425,27 +432,27 @@
         <td class="border"> {{ $license->owner->telefono }} </td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           DOMICILIO
         </td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           OCUPACIÓN
         </td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           TELÉFONO
         </td>
       </tr>
     </table>
     <table width="100%" class="border">
       <tr>
-        <td class="border"> $nombre </td>
-        <td class="border"> $domicilio</td>
+        <td class="border"><br></td>
+        <td class="border"><br></td>
       </tr>
       <tr>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           FIRMA DEL PERITO
         </td>
-        <td style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">
+        <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">
           FIRMA DEL SOLICITANTE
         </td>
       </tr>
@@ -455,7 +462,7 @@
     <table width="100%" class="border">
       <tr>
         @if (!is_null($license->validity))
-            <td class="border center" width="70%"> {{ $license->validity->fecha_autorizacion->format('d-m-Y') }} </td>
+            <td class="border center" width="70%"> Del {{ $validity->auth_date }} </td>
         @else
             <td class="border center" width="70%"> {{ 'Vista Previa' }} </td>
         @endif
@@ -463,7 +470,7 @@
       </tr>
       <tr>
         @if (!is_null($license->validity))
-            <td class="border center" width="70%"> {{ $license->validity->fecha_fin_vigencia->format('d-m-Y') }} </td>
+            <td class="border center" width="70%"> Al {{ $validity->end_date }} </td>
         @else
             <td class="border center" width="70%"> {{ 'Vista Previa' }} </td>
         @endif
@@ -501,12 +508,13 @@
       </tr>
     </table>  --}}
     <div class="page-break"></div>
+    <br>
     <div class="row center">
       <b>SUPERFICIE POR CONSTRUIR O REGULARIZAR M2</b>
     </div>
     <table width="100%">
       <tr>
-        <td width="50%">
+        <td width="50%" style=" font-size:11px;">
           <table>
             <tr>
                 <td>SÓTANO</td>
@@ -547,7 +555,7 @@
           </table>
         </td>
         <td width="50%">
-          <table>
+          <table style=" font-size:11px;">
             <tr>
                 <td>CUARTO PISO</td>
                 <td>
@@ -592,35 +600,48 @@
     <table width="100%">
       <tr>
         <td class="border"
-          style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">TIPO</td>
+          style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">TIPO</td>
         <td class="border"
-          style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">VALOR POR
+          style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">VALOR POR
           M2</td>
         <td class="border"
-          style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">CUOTA
+          style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">CUOTA
           IMPORTE TOTAL</td>
-        <td class="border"
-          style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">RECIBO DE
-          PAGO No.</td>
-        <td class="border"
-          style="text-align: center;color: white;background-color: rgb(181, 173, 173); font-weight: bold; font-size:12px;">FECHA</td>
       </tr>
-      <tr>
-        <td class="border"></td>
-        <td class="border"></td>
-        <td class="border"></td>
-        <td class="border"></td>
-        <td class="border"></td>
-      </tr>
+        @if (!is_null($license->order))
+
+            @foreach($license->order->duties as $duty)
+                <tr>
+                    <td class="grande center border">{{ $duty->cuenta }}</td>
+                    <td class="grande center border">{{ number_format($duty->precio,2) }}</td>
+                    {{--  <td class="grande center border">{{ number_format($duty->cantidad,2) }}</td>  --}}
+                    <td class="grande center border">{{ number_format($duty->total,2) }}</td>
+                </tr>
+            @endforeach
+        @endif
     </table>
     <br>
     <div class="row center">CROQUIS</div>
-    <img src="http://api.ciczac.org/storage/app/{{$license->property->mapa_ubicacion}}"
+    <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->property->mapa_url}}"
       alt="" width="100%">
     <div class="row center">DATOS QUE DEBE CONTENER EL CROQUIS</div><br>
     <div class="row center" style="font-size: 11px;">NOMBRE DE LA CALLE QUE LIMITA LA MANZANA, DISTANCIA DE LAS 2
       ESQUINAS A LOS LNDEROS DEL
       PREDIO, MEDIDAS DEL FRENTE Y FONDO DEL PREDIO, ANCHO DE LA CALLE Y BANQUETA.</div>
+    <br>
+    <div class="row justify grande">
+        El presente acto administrativo cuenta con firma electrónica del servidor público competente,
+        amparada por un certificado vigente a la fecha de la elaboración
+        y es valido de conformidad con lo dispuesto en la le de firma electrónica del estado de Zacatecas.
+    </div><br><br>
+    @if ($license->qr_code)
+        <div class="row">
+            <div class="s12 center">
+                <b class="grande">Para verificar la autenticidad de este documento, escanee el siguiente código QR</b><br>
+                <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->qr_code}}" height="140px">
+            </div>
+        </div>
+    @endif
   </main>
 </body>
 

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,10 +21,12 @@ class SignPlans implements ShouldQueue
      * @return void
      */
     protected $license;
+    protected $user;
 
-    public function __construct($license)
+    public function __construct($license, $user)
     {
         $this->license = $license;
+        $this->user = $user;
     }
 
     /**
@@ -34,45 +37,60 @@ class SignPlans implements ShouldQueue
     public function handle()
     {
         $license = $this->license;
-        self::getPlans($license);
+        self::getPlans($license, $this->user);
     }
 
-    public function getPlans($license)
+    public function getPlans($license, $user)
     {
         $plans = $license->requirements()->get();
         $plans = $plans->map(function ($plan){
-            if ($plan->requirement->es_plano || $plan->requirement->id == 17 && (!is_null($plan->archivo_nombre))) { //17 bitacora
+            if (($plan->requirement->es_plano || $plan->requirement->id == 17) &&
+                (!is_null($plan->archivo_nombre)) &&
+                !$plan->firmado) { //17 bitacora
                 return $plan;
             }
         })->reject(function ($value) { return $value == null; });
 
-        $plans->map(function ($plan) use ($license){
+        $user = User::find($user->id)->load('credentials');
+        logger($user);
 
+        $plans->map(function ($plan) use ($license, $user){
+            // logger($license->id);
+            logger($plan->archivo_nombre);
             $file  = file_get_contents(storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/requisitos/{$plan->archivo_nombre}"));
             $response = Http::acceptJson()->attach(
                 'document', $file, 'pdf-licencia.pdf'
-            )->post('http://10.220.107.111/api/v1/initialize', [
+            )->post('https://efirma.capitaldezacatecas.gob.mx/api/v1/initialize', [
                 'signers_number' => 1,
             ]);
+
             $signed = (json_decode($response));
 
-            $response = Http::acceptJson()
-            ->post('http://10.220.107.111/api/v1/massive', [
-                'username' => 'MIQS690515I74',
-                'password' => 'WmtmpINMaU',
+            logger($response);
+            // logger($signed->process_id);
+            Http::acceptJson()
+            ->post('https://efirma.capitaldezacatecas.gob.mx/api/v1/massive', [
+                'username' => $user->credentials->username,
+                'password' => $user->credentials->password,
                 'process_id' =>  $signed->process_id,
             ]);
 
             $response = Http::acceptJson()
-            ->post('http://10.220.107.111/api/v1/finalize', [
+            ->post('https://efirma.capitaldezacatecas.gob.mx/api/v1/finalize', [
                 'process_id' =>  $signed->process_id,
             ]);
             $file_URL = json_decode($response);
+            // logger('end');
+            // logger($file_URL->file);
+            exec("chmod -R 0777 /var/www/permisos.capitaldezacatecas.gob.mx/api/storage/app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/");
 
-            copy(
+            if(copy(
                 $file_URL->file,
                 storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/requisitos/{$plan->archivo_nombre}")
-            );
+            )){
+                $plan->firmado = true;
+                $plan->save();
+            }
         });
     }
 }

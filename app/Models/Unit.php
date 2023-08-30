@@ -50,7 +50,7 @@ class Unit extends Model
     public static function getUnitsByRole(User $user)
     {
         if ($user->hasRole(['jefeSDUMA'])) {
-            return Unit::all();
+            return Unit::all()->load('department');
         }else{
             return Unit::where('department_id', $user->department[0]->id)->get();
         }

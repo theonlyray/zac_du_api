@@ -31,8 +31,7 @@ class OrderPolicy
     //?order store method is only accessible for users from the same department of the license type
     public function before(User $user, $ability, $model, $departmentIdInRequest = null, License $license = null, Order $order = null, $password = null)
     {
-        logger('before');
-        logger($ability);
+
        //?set in an array departmentIds
        $userDepartmentIds = $user->department->pluck('id')->toArray();
        if ($ability == 'index' || $ability == 'show' || $ability == 'update') {
@@ -59,11 +58,17 @@ class OrderPolicy
         }
         elseif ($ability == 'validate') {
             //? user with role jefeSDUMA is as super admin dont enter in validations
-            if(!$order->validada) $this->flag = true;
-            else $this->validatingMessage = 'La orden ya fue validada.';
-            if (Hash::check($password, $user->contrasenia)) $this->flag = true;
-            else $this->validatingMessage = 'Contraseña incorrecta.';
-
+            if(!$order->validada){
+                $this->flag = true;
+            }else{
+                $this->validatingMessage = 'La orden ya fue validada.';
+            }
+            if(Hash::check($password, $user->contrasenia)){
+                $this->flag = true;
+            }else{
+                $this->validatingMessage = 'Contraseña incorrecta.';
+                $this->flag = false;
+            }
         }
         return null;//?returns null to continue with the next method
     }

@@ -115,10 +115,23 @@ class UserSeeder extends Seeder
         ])->assignRole('particular');
 
 
-        User::create([
+        User::create([//19
             "nombre" => "JEFE DE SECRETARIA DE DESARROLLO URBANO Y MEDIO AMBIENTE",
             "correo" => "jefeSDUMA@gmail.com",
             "contrasenia" => Hash::make("password"),
         ])->assignRole('jefeSDUMA');
+
+        //colegio ing 20
+        User::create([
+            "nombre" => "Dir Colegio ME",
+            "correo" => "dir_col_meg@gmail.com",
+            "contrasenia" => Hash::make("password"),
+        ])->assignRole('directorCol');
+        //colegio ing 21
+        User::create([
+            "nombre" => "Dir Colegio RES",
+            "correo" => "dir_col_res@gmail.com",
+            "contrasenia" => Hash::make("password"),
+        ])->assignRole('directorCol');
     }
 }

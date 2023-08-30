@@ -22,7 +22,7 @@
       left: 0cm;
       right: 0cm;
       height: 2cm;
-      background-color: #a31831;
+      background-color: #008538;
       color: white;
       text-align: center;
       line-height: 1.5cm;
@@ -32,7 +32,7 @@
       margin-right: 2cm;
       font-family: Arial, Helvetica, sans-serif;
       margin-top: 120px;
-      font-size: 12px;
+      font-size: 15px;
     }
     .img-contain {
       width: 70px;
@@ -259,32 +259,39 @@
 </head>
 
 <body>
-
-  <header>
-    <div class="row">
-      <div class="s6 center">
-        <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
-      </div>
-      <div class="s6 border left" style="padding:5px;">
-        <b style="font-size:18px;">Presidencia Municipal de Zacatecas</b>
-        <span style="font-size:11px;">
-          Secretaría de Desarrollo Urbano y Medio Ambiente<br>
-          Departamento de Permisos y Licencias para la Construcción
-        </span>
-        <b style="font-size:13px;">
-          LICENCIA DE CONSTRUCCIÓN Folio No. <span style="font-size:20px;color:rgb(175, 63, 63)">{{ $license->folio }}</span>
-        </b>
-        <b style="font-size:13px;">Página <span class=" pagenum" style="font-size:13px;"></span></b>
-      </div>
-    </div>
-  </header>
-  <main>
+    @php
+        \Carbon\Carbon::setLocale('es');
+    @endphp
+    <header>
+        <div class="row">
+            <div class="s6 left">
+                <img src="https://permisos.capitaldezacatecas.gob.mx/img/logo/logo-clear-v.png" height="100px">
+            </div>
+            <div class="s6 right" style="padding:5px;">
+                <b style="font-size:18px;">Presidencia Municipal de Zacatecas</b>
+                <span style="font-size:11px;">
+                Secretaría de Desarrollo Urbano y Medio Ambiente</span><br>
+                <span style="font-size:11px;">
+                    Departamento de Permisos y Licencias para la Construcción</span>
+                <b style="font-size:13px;">
+                <div class="row right">
+                <b style="font-size:11px;">
+                    {{ $validity_date}}
+                </b><br>
+                <b style="font-size:11px;">
+                    NÚMERO DE OFICIO {{ $license->folio }}
+                </b><br>
+                </div>
+            </div>
+        </div>
+      </header>
+  <main><br><br><br><br>
     <div class="row">
       <b> C. APODERADO LEGAL </b> <br>
       {{ $license->owner->nombre_apellidos }} <br>
       {{ $license->owner->domicilio }} <br>
       <b>P R E S E N T E</b>
-    </div><br>
+    </div><br><br><br><br>
 
     <div class="row center">
       <b> ASUNTO: CONSTANCIA DE SEGURIDAD ESTRUCTURAL<br><br>
@@ -295,37 +302,38 @@
       Que en la inspección realizada por parte de los peritos de esta Secretaria de Desarrollo Urbano Y Medio Ambiente,
       se verificó que la construcción ubicada en la dirección arriba indicada, cuenta con la Seguridad Estructural
       requerida conforme al Articulo 279 del reglamento General de la Ley de Construcción para el Estado y Municipios de
-      Zacatecas, que señala que para <b>{{ $safety->destino }}</b> la carga viva de diseño es de {{ $safety->carga }}, la cual
+      Zacatecas, que señala que para <b>{{ $safety->destino_d }}</b> la carga viva de diseño es de {{ $safety->carga }}, la cual
       deberá ser representada. Lo anterior de conformidad con el <b>Dictamen de Seguridad Estructural</b> presentado por
       el <b>{{ $applicant->nombre }}</b> con registro de <b>{{ $applicantData->no_registro }}</b>.
     </div>
     <br>
     <div class="row justify">
         Se extiende la presente a petición del interesado para los usos y fines legales que al mismo convengan, en la
-        ciudad de Zacatecas, Capital del Estado del mismo nombre, a los
-        {{ $validity->created_at->format('d') ?? '0' }} del mes de
-        {{ $validity->created_at->format('m') ?? '00' }} del año
-        {{ $validity->created_at->format('Y') ?? '0000' }}
+        ciudad de Zacatecas, Capital del Estado del mismo nombre, a
+        @if (is_null($validity))
+            9 del mes de 99 del año 1900
+        @else
+            {{ $validity->created_at->format('d') ?? '0' }} del mes de
+            {{ $validity->created_at->format('F') ?? '00' }} del año
+            {{ $validity->created_at->format('Y') ?? '0000' }}
+        @endif
+    </div><br>
+    <div class="row justify grande">
+        El presente acto administrativo cuenta con firma electrónica del servidor público competente,
+        amparada por un certificado vigente a la fecha de la elaboración
+        y es valido de conformidad con lo dispuesto en la le de firma electrónica del estado de Zacatecas.
     </div><br><br>
-    <div class="row center">
-      <b>
-        A T E N T A M E N T E
-      </b>
-    </div>
-    <br><br><br><br>
-    <div class="row center">
-      <hr>
-      <b>
-        M. {{ $dirDep->nombre }} <br>
-        JEFE DE DEPARTAMENTO DE PERMIOS Y <br>
-        LICENCIAS PARA LA CONSTRUCCIÓN <br>
-      </b>
-    </div>
-
+    @if ($license->qr_code)
+        <div class="row">
+            <div class="center">
+                <b class="grande">Para verificar la autenticidad de este documento, escanee el siguiente código QR</b><br>
+                <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->qr_code}}" height="140px">
+            </div>
+        </div>
+    @endif
   </main>
   <footer>
     <b>Av. Héroes de Chapultepec N° 1110 Col. Lázaro Cárdenaz, Zacatecas, Zac. C.P. 98040 Tel. 92 3 94 21</b>
-
   </footer>
 </body>
 

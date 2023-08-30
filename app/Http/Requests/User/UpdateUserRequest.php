@@ -30,8 +30,10 @@ class UpdateUserRequest extends FormRequest
             'correo'        => 'required|email',
             'contrasenia'   => 'sometimes|filled|string',
             'validado'      => 'required|filled|boolean',
+	        'validado_col'  => 'sometimes|nullable|boolean',
             'role_id'       => 'sometimes',
             'unit_id'       => 'sometimes',
+            'dep_id'       => 'sometimes',
         ];
     }
 

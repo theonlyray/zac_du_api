@@ -28,7 +28,8 @@ class StoreLicenseObservationRequest extends FormRequest
         return [
             'estatus'     => 'required|filled|int|max:16',
             'observacion' => 'required|filled|string',
-            'contrasenia' => 'required_if:estatus,>=,15|string|filled'
+            'contrasenia' => 'required_if:estatus,>=,15|string|filled',
+            'file'        => 'required_if:estatus,==,8|nullable',
         ];
     }
 

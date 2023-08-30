@@ -12,10 +12,9 @@ class LicenseObservation extends Model
     use HasFactory, LogsActivity;
 
     protected $fillable = [
-        'observaciones',
-        'solventada',
-        'user_id',
-        'license_id',
+        'observaciones', 'solventada',
+        'path', 'url',
+        'user_id', 'license_id',
     ];
 
     protected $casts = [

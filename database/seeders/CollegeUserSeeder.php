@@ -38,5 +38,14 @@ class CollegeUserSeeder extends Seeder
             "user_id" => 17,
             "college_id" => 1,
         ]);
+        CollegeUser::create([
+            "user_id" => 20,
+            "college_id" => 3,
+        ]);
+        CollegeUser::create([
+            "user_id" => 21,
+            "college_id" => 4,
+        ]);
     }
 }
+

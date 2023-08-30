@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Orders;
 
 use App\Events\ApiOPQueried;
+use App\Events\GenerateLicense;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\DestroyOrderRequest;
 use App\Http\Requests\Order\StoreOrderRequest;
@@ -17,12 +18,14 @@ use App\Models\LicenseType;
 use App\Models\Order;
 use App\Models\OrderDuty;
 use App\Models\User;
+use App\Notifications\OrderValidated;
 use App\Services\CheckLicenseType;
 use App\Services\StorageService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -95,6 +98,15 @@ class OrderController extends Controller
         try {
             $order->save();
             $order->duties()->saveMany($duties);
+
+            /**
+             * http get request to get online payment qr code and save it
+             */
+            $response = Http::get(
+                "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=http://permisos.capitaldezacatecas.gob.mx/pagos.html?uuid=$license->folio&choe=UTF-8");
+            Storage::put("public/solicitantes/{$license->user_id}/licencias/{$license->id}/pago/qr.png",
+                $response->body(), 'public');
+
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(500, 'No se ha podido generar la orden, intentelo más tarde. '.$th->getMessage());
@@ -204,12 +216,19 @@ class OrderController extends Controller
             $order->fecha_autorizacion = Carbon::now();
             $order->hash = $response->signatura;
             $order->validada = true;
+            $order->validator_id = $user->id;
             $order->save();
 
-            $license->estatus = 11;
+            $user = User::find($license->user_id);
+            $user->notify(new OrderValidated($license, $order));
+
+            $license->estatus = 5;
             $license->save();
+
+            event(new GenerateLicense($license));
         } catch (\Throwable $th) {
             DB::rollBack();
+            logger($th);
             abort(500, 'No se ha validado la orden inténtalo más tarde. '. $th->getMessage());
         }
 
@@ -223,7 +242,7 @@ class OrderController extends Controller
         $license->load(['licenseType', 'applicant',
             'applicant.applicantData','property',
             'backgrounds', 'construction', 'owner',
-            'validity', 'requirements', 'ad',
+            'validity', 'requirements', 'ads',
             'validations', 'observations',
             'order', 'order.duties']);
 
@@ -255,7 +274,7 @@ class OrderController extends Controller
 
         $data = [
 
-            'nombre' => $owner->nombre_apellidos,
+            'nombre' => $owner->nombre_apellidos ?? $user->nombre,
             'descripcion' => $licType->nombre .' '. $licType->nota,
             'id' => $duties->map(function ($duty){
                 return $duty->idCuenta;
@@ -273,11 +292,10 @@ class OrderController extends Controller
                 'Authorization' => "Bearer {$token}",
             ])
             ->acceptJson()
-            ->post('http://10.220.107.112/api/orden/store', $data);
+            ->post('https://sefin.capitaldezacatecas.gob.mx/api/orden/store', $data);
 
 
         abort_if(!$response->successful(),500,'Error de inserción (API), intentelo más tarde.');
-
         return json_decode($response);
     }
 
@@ -340,8 +358,8 @@ class OrderController extends Controller
      */
     public function calculateMonths(License $license)
     {
-        $ts1 = strtotime($license->validity['fecha_autorizacion']);
-        $ts2 = strtotime($license->validity['fecha_fin_vigencia']);
+        $ts1 = strtotime($license->validity['fecha_autorizacion'] ?? Carbon::now());
+        $ts2 = strtotime($license->validity['fecha_fin_vigencia'] ?? Carbon::now());
 
         $year1 = date('Y', $ts1);
         $year2 = date('Y', $ts2);

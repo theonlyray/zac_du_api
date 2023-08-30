@@ -13,39 +13,52 @@ use App\Models\AdDescription;
 use App\Models\CompatibilityCertificate;
 use App\Models\ConstructionBackground;
 use App\Models\ConstructionDescription;
-use App\Models\ConstructionLocation;
 use App\Models\ConstructionOwner;
 use App\Models\License;
 use App\Models\LicenseObservation;
 use App\Models\LicenseRequirement;
-use App\Models\LicenseType;
-use App\Models\LicenseTypes;
 use App\Models\LicenseValidation;
-use App\Models\LicenseValidity;
+use App\Models\Lot;
 use App\Models\Property;
 use App\Models\Requirement;
+use App\Models\SelfBuild;
 use App\Models\SFD;
 use App\Models\StructuralSafetyCertificate;
 use App\Services\CheckLicenseType;
 use App\Services\StorageService;
+use App\Services\StoreLicenseService;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-
-use function PHPUnit\Framework\isNull;
-use function Symfony\Component\String\b;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Crypt;
 class LicenseController extends Controller
 {
     protected $storage;
     protected $checkLicenseType;
+    protected $storeLicenseServer;
+    protected $loadArrays;
+    protected $IStoreLicenseService;
 
     public function __construct(StorageService $storage)
     {
         $this->storage = $storage;
         $this->checkLicenseType = new CheckLicenseType();
+        // $this->IStoreLicenseService = new StoreLicenseService($storage);
+        $this->IStoreLicenseService = new StoreLicenseService();
+        $this->loadArrays = [
+            'licenseType', 'applicant', 'property',
+            'backgrounds', 'construction', 'owner',
+            'validity', 'requirements', 'ads',
+            'validations', 'observations',
+            'order', 'order.duties', 'applicant.applicantData',
+            'compatibilityCertificate',
+            'compatibilityCertificate.LandUse',
+            'compatibilityCertificate.LandUseDescription',
+            'SFD', 'safety', 'selfBuild', 'SFD.lots',
+        ];
     }
 
     public function counter()
@@ -64,7 +77,7 @@ class LicenseController extends Controller
         $this->authorize('index', License::class);
 
         // todo update by role
-        $licenses = License::where('estatus', 7)->get(['id','folio']);
+        $licenses = License::where('estatus', 6)->get(['id','folio']);
 
         abort_if($licenses->isEmpty(), 204, 'No se encontraron licencias.');
 
@@ -78,7 +91,7 @@ class LicenseController extends Controller
         $user   = request()->user();
         $status = request()->query('estatus');
 
-        $allowsParams = collect(['Solicitudes', 'Proceso', 'Autorizadas', 'Canceladas', 'Rechazadas']);
+        $allowsParams = collect(['Preparación', 'Proceso', 'Autorizadas', 'Canceladas', 'Rechazadas']);
         $isAllowed = $allowsParams->first(function ($item) use ($status){
             return $item == $status;
         });
@@ -96,17 +109,7 @@ class LicenseController extends Controller
     {
         $this->authorize('show', [License::class, $license]);
 
-        return response()->json($license->load([
-            'licenseType', 'applicant', 'property',
-            'backgrounds', 'construction', 'owner',
-            'validity', 'requirements', 'ad',
-            'validations', 'observations',
-            'order', 'order.duties', 'applicant.applicantData',
-            'compatibilityCertificate',
-            'compatibilityCertificate.LandUse',
-            'compatibilityCertificate.LandUseDescription',
-            'SFD', 'safety',
-        ]), 200);
+        return response()->json($license->load($this->loadArrays), 200);
     }
 
     public function store(StoreLicenseRequest $request)
@@ -123,55 +126,66 @@ class LicenseController extends Controller
         DB::beginTransaction();
         try {
             $license->save();
-            if ($licenseType != 'vehicle-ad' && $licenseType != 'self-build') {
-                self::saveProperty($request, $license);
+            if ($licenseType != 'vehicle_ad' && $licenseType != 'self-build') {
+                $this->IStoreLicenseService->saveProperty($request, $license);
+                // self::saveProperty($request, $license);
             }
 
-            if ($licenseType == 'construction') {
+            if ($licenseType == 'construction' || $licenseType == 'break_pavement' || $licenseType == 'completion') {
                 //?backgrounds
-                if ($request->backgrounds[0] <> null)
-                    self::saveBackgrounds($request, $license);
-                //?construction description
-                self::saveConstructionDescriptions($request, $license);
+                if ($licenseType != 'break_pavement') {
+                    if ($request->backgrounds[0] <> null) {
+                        $this->IStoreLicenseService->saveBackgrounds($request, $license);
+                    }
+                }
 
-                self::saveConstructionOwner($request, $license, $user);
+                //?construction description
+                $this->IStoreLicenseService->saveConstructionDescriptions($request, $license);
+
+                $this->IStoreLicenseService->saveConstructionOwner($request, $license, $user);
             }
 
             if ($licenseType == 'oficial_number' || $licenseType == 'urban_services' ||
-                $licenseType == 'sfd' || $licenseType == 'break_pavement') {
-                    self::saveConstructionOwner($request, $license, $user);
+                $licenseType == 'sfd' ||  $licenseType == 'alignment') {
+                    $this->IStoreLicenseService->saveConstructionOwner($request, $license, $user);
             }
 
             if ($licenseType == 'self-build') {
-                self::saveBackgrounds($request, $license);
+                $this->IStoreLicenseService->saveBackgrounds($request, $license);
+                $this->IStoreLicenseService->saveSelfBuild($request, $license);
             }
 
             if ($licenseType == 'safety') {
-                self::saveSafety($request, $license);
-                self::saveConstructionOwner($request, $license, $user);
+                $this->IStoreLicenseService->saveSafety($request, $license);
+                $this->IStoreLicenseService->saveConstructionOwner($request, $license, $user);
             }
 
             if ($licenseType == 'compatibility') {
-                self::saveCompatibilityCertificate($request, $license);
+                $this->IStoreLicenseService->saveCompatibilityCertificate($request, $license);
             }
 
             if ($licenseType == 'ad' || $licenseType == 'vehicle_ad') {//? ads
-                self::saveAdDescription($request, $license);
+                $this->IStoreLicenseService->saveAdDescription($request, $license);
             }
 
             if ($licenseType == 'sfd') {//? sfd
-                self::saveSFD($request, $license);
+                $this->IStoreLicenseService->saveSFD($request, $license);
             }
 
             if (!is_null($request->validity)) {
                 if (!is_null($request->validity['fecha_autorizacion']) && !is_null($request->validity['fecha_fin_vigencia'])) {
-                    self::saveValidity($request, $license);
+                    $this->IStoreLicenseService->saveValidity($request, $license);
                 }
             }
 
-            self::saveRequirements($licenseData, $license);
+            $this->IStoreLicenseService->saveRequirements($licenseData, $license);
+
+            Storage::makeDirectory("public/solicitantes/{$user->id}/licencias/{$license->id}", 0777, true);
+
+            $this->generateQR(null, $license);
         } catch (\Throwable $th) {
             DB::rollBack();
+            logger($th);
             $this->storage
                 ->deleteDirectory("public/solicitantes/{$user->id}/licencias/{$license->id}");
             abort(500, 'No se ha podido generar la licencia, intentelo más tarde '. $th->getMessage());
@@ -179,7 +193,6 @@ class LicenseController extends Controller
         DB::commit();
 
         return response()->json($license, 200);
-        // return response()->json($licenseData, 200);
     }
 
     public function update(UpdateLicenseRequest $request, License $license)
@@ -191,15 +204,32 @@ class LicenseController extends Controller
         $licenseType = $this->checkLicenseType->checkLicenseType($request->license_type_id);
 
         try {
+            $data = $request->validated();
+            $license->fill($data);
+            $license->save();
 
-            if ($licenseType != 'vehicle-ad'){//? vehicle ad
+            if ($licenseType != 'vehicle-ad' && $licenseType != 'self-build'){
                 $property = Property::firstWhere('license_id', $license->id);
                 $property->fill($request->property);
                 $property->save();
             }
 
+            if ($licenseType != 'vehicle-ad' && $licenseType != 'self-build' && $licenseType != 'compatibility'){
+                //saving owner data
+                $owner = ConstructionOwner::firstWhere('license_id', $license->id);
+                //fill or create
+                if (is_null($owner)) {
+                    $owner = new ConstructionOwner($request->owner);
+                    $license->owner()->save($owner);
+                } else {
+                    $owner->fill($request->owner);
+                    $owner->save();
+                }
+            }
+
+
             //? numbers in db, id license type
-            if ($licenseType == 'construction') { //? permisos de construccion
+            if ($licenseType == 'construction' || $licenseType == 'completion' || $licenseType == 'break_pavement') { //? permisos de construccion
                 $description = ConstructionDescription::firstWhere('license_id', $license->id);
                 $description->fill($request->construction);
 
@@ -209,13 +239,13 @@ class LicenseController extends Controller
                 $owner->fill($request->owner);
                 $license->owner()->save($owner);
 
-                if (!empty($request->backgrounds)) {
-                    self::updateBackgrounds($request, $license);
+                if (!empty($request->backgrounds) && $licenseType != 'completion' && $licenseType != 'break_pavement') {
+                    $this->IStoreLicenseService->updateBackgrounds($request, $license);
                 }
             }
 
             if ($licenseType == 'oficial_number' || $licenseType == 'urban_services' ||
-                $licenseType == 'sfd' || $licenseType == 'break_pavement') {
+                $licenseType == 'sfd' || $licenseType == 'alignment') {
                 //?no oficial | romper pavimento
                 $owner = ConstructionOwner::firstWhere('license_id', $license->id);
                 $owner->fill($request->owner);
@@ -224,7 +254,10 @@ class LicenseController extends Controller
 
             if ($licenseType == 'self-build') {
                 //?constancia autoconstruccion
-                self::updateBackgrounds($request, $license);
+                $this->IStoreLicenseService->updateBackgrounds($request, $license);
+                $selfBuild = SelfBuild::firstWhere('license_id', $license->id) ?? new SelfBuild();
+                $selfBuild->fill($request->self_build);
+                $license->selfBuild()->save($selfBuild);
             }
 
             if ($licenseType == 'safety') {
@@ -245,35 +278,32 @@ class LicenseController extends Controller
             }
 
             if ($licenseType == 'ad' || $licenseType == 'vehicle_ad') {//? anuncios
-                $ad = AdDescription::firstWhere('license_id', $license->id);
-                $ad->fill($request->ad);
-                $license->ad()->save($ad);
+                //query and update each ad in request
+                foreach ($request->ads as $rad) {
+                    $ad = AdDescription::find($rad['id']);
+                    $ad->fill($rad);
+                    $ad->save();
+                }
             }
 
             if ($licenseType == 'sfd') {//? sfd
-                $sfd = SFD::firstWhere('license_id', $license->id);
-                $sfd->fill($request->s_f_d);
-                $license->SFD()->save($sfd);
+                $this->IStoreLicenseService->updateSFD($request, $license);
             }
 
             if (!is_null($request->validity)) {
                 if (!is_null($request->validity['fecha_autorizacion']) && !is_null($request->validity['fecha_fin_vigencia'])) {
-                    self::saveValidity($request, $license);
+                    $this->IStoreLicenseService->saveValidity($request, $license);
                 }
             }
 
         } catch (\Throwable $th) {
+            logger($th);
             DB::rollBack();
             abort(500, 'No se ha podido actualizar la licencia, intentelo más tarde '. $th->getMessage());
         }
         DB::commit();
 
-        return response()->json($license->load([
-            'licenseType', 'applicant', 'property',
-            'backgrounds', 'construction', 'owner',
-            'validity', 'requirements', 'validations',
-            'observations', 'ad'
-        ]), 200);
+        return response()->json($license->load($this->loadArrays), 200);
     }
 
     public function updateMap(UpdateLicenseMapRequest $request, License $license)
@@ -281,11 +311,6 @@ class LicenseController extends Controller
         $this->authorize('update', [License::class, $license]);
 
         $user = $request->user();
-        // $this->validate(
-        //     $request,
-        //     ['mapa' => 'required|filled'],
-        //     ['filled' => 'El campo :attribute no debe estar vacío.'],
-        // );
 
         try {
             $this->storage->deleteFiles([$license->load('property')->mapa_ubicacion]);
@@ -311,7 +336,7 @@ class LicenseController extends Controller
         return response()->json($license->load([
             'licenseType', 'applicant', 'property',
             'backgrounds', 'construction', 'owner',
-            'validity', 'requirements', 'ad',
+            'validity', 'requirements', 'ads',
             'validations', 'observations',
             'order', 'order.duties', 'applicant.applicantData',
             'compatibilityCertificate', 'SFD'
@@ -339,6 +364,65 @@ class LicenseController extends Controller
             'backgrounds', 'construction', 'owner',
             'validity', 'requirements', 'validations',
             'observations'
+        ]), 200);
+    }
+
+    public function sfd(License $license, SFD $sfd)
+    {
+
+        $this->authorize('update', [License::class, $license]);
+
+        DB::beginTransaction();
+        try {
+            SFD::where('id', $sfd->id)->delete();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            abort(500, 'No se ha podido eliminar la actividad, intentelo más tarde '. $th);
+        }
+
+        DB::commit();
+
+        return response()->json($license->load($this->loadArrays), 200);
+    }
+
+    public function lot(License $license, Lot $lot)
+    {
+
+        $this->authorize('update', [License::class, $license]);
+
+        DB::beginTransaction();
+        try {
+            Lot::where('id', $lot->id)->delete();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            abort(500, 'No se ha podido eliminar el lote, intentelo más tarde '. $th);
+        }
+
+        DB::commit();
+
+        return response()->json($license->load($this->loadArrays), 200);
+    }
+
+    public function ad(License $license, AdDescription $ad)
+    {
+
+        $this->authorize('update', [License::class, $license]);
+
+        DB::beginTransaction();
+        try {
+            AdDescription::where('id', $ad->id)->delete();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            abort(500, 'No se ha podido eliminar el anuncio, intentelo más tarde '. $th);
+        }
+
+        DB::commit();
+
+        return response()->json($license->load([
+            'licenseType', 'applicant', 'property',
+            'backgrounds', 'construction', 'owner',
+            'validity', 'requirements', 'validations',
+            'observations', 'ads'
         ]), 200);
     }
 
@@ -392,6 +476,17 @@ class LicenseController extends Controller
                 'observaciones' => $request->observacion,
                 'user_id'       => $request->user()->id,
             ]);
+            if ($request->estatus == 8) {
+                $uploadedFile = $this->storage->saveDocumentBlueprint(
+                    $request->file['base64'],
+                    "public/solicitantes/{$license->user_id}/licencias/{$license->id}/rechazo",
+                    $request->file['filename']
+                );
+
+                $observation->path    = $uploadedFile['path'];
+                $observation->url     = $uploadedFile['url'];
+            }
+
             $license->observations()->save($observation);
 
             $license->estatus = $request->estatus;
@@ -423,25 +518,23 @@ class LicenseController extends Controller
             $responseEvent = event(new RequestValidated(request()->user(), $license));
             abort_if($responseEvent[0] == 'false',403,'No ha cargado todos los documentos obligatorios');
         }
-
-        if ($request->estatus == 4 || $request->estatus == 5 || $request->estatus == 7) {
+        //?Docs y Planos Validados || Autorizada
+        if ($request->estatus == 4 || $request->estatus == 6) {
             try {
                 $validition = new LicenseValidation(['user_id' => $user->id, 'descripcion' => $license->estatus]);
                 $license->validations()->save($validition);
 
-                $observations = LicenseObservation::where('created_at', '<=', Carbon::now())->get(); //get observations befo current validation
+                self::obsSolved($license);
 
-                $observations = $observations->map(function ($observation){
-                    $observation->solventada = true; //?if theres a new validation old observations must be solved
-                        return $observation->save();
-                });
             } catch (\Throwable $th) {
-                //throw $th;
-                logger($th);
                 DB::rollBack();
                 return 'Error al generar validación '. $th->getMessage();
             }
         }
+        if ($request->estatus == 3) {//'obs corregidas
+            self::obsSolved($license);
+        }
+
         $license->save();
         DB::commit();
 
@@ -449,6 +542,20 @@ class LicenseController extends Controller
             'backgrounds', 'construction', 'owner',
             'validity', 'requirements', 'validations',
             'observations'), 200);
+    }
+
+    private function obsSolved(License $license)
+    {
+        $observations = LicenseObservation::where([
+            ['created_at', '<=', Carbon::now()],
+            ['license_id', $license->id]
+        ])
+        ->get(); //get observations befo current validation
+
+        $observations = $observations->map(function ($observation){
+            $observation->solventada = true; //?if theres a new validation old observations must be solved
+                return $observation->save();
+        });
     }
 
     public function sublicense(UpdateLicenseRequest $request, License $license)
@@ -472,7 +579,9 @@ class LicenseController extends Controller
         try {
             $license->save();
 
-            mkdir(storage_path("app/public/solicitantes/{$priorLicense->user_id}/licencias/{$license->id}"));
+            // mkdir(storage_path("app/public/solicitantes/{$priorLicense->user_id}/licencias/{$license->id}"));
+            Storage::makeDirectory("public/solicitantes/{$user->id}/licencias/{$license->id}", 0777, true);
+
             if ($licenseType != 'vehicle-ad'){//? vehicle ad
                 //?propety description
 
@@ -495,7 +604,7 @@ class LicenseController extends Controller
             if  ($licenseType == 'construction') { //? permisos de construccion
                //?backgrounds
                 if ($request->backgrounds[0] <> null) {
-                    self::saveBackgrounds($request, $license);
+                    $this->IStoreLicenseService->saveBackgrounds($request, $license);
                 }
 
                 //?construction description
@@ -510,16 +619,19 @@ class LicenseController extends Controller
                 $newconstOwner->save();
             }
 
-            if ($type){//?termination
+            // if ($type){//?termination
                 //?array created to can use saveRequirements method in store and sublicense function
 
                 self::copyRequirements($priorLicense, $license);
-            }else{//?extension
+            // }else{//?extension
                 self::saveExtRequirement($license);
                 //?copy requirement's file form old license
                 self::copyExtRequirement($priorLicense, $license);
-            }
+            // }
 
+            Storage::makeDirectory("public/solicitantes/{$user->id}/licencias/{$license->id}", 0777, true);
+
+            $this->generateQR(null, $license);
 
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -532,141 +644,96 @@ class LicenseController extends Controller
         return response()->json($license, 200);
     }
 
-    /**
-     * save property informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveProperty($request, $license)
+    public function countersign(UpdateLicenseRequest $request, License $license)
     {
-        $property = new Property($request->property);
-        $uploadedFile = $this->storage->uploadBase64File(
-            $request->property['mapa'],
-            "public/solicitantes/{$license->user_id}/licencias/{$license->id}",
-            'map'
-        );
+        $this->authorize('store', License::class, $request->license_type_id);
 
-        $property->mapa_ubicacion    = $uploadedFile['path'];
-        $property->mapa_url          = $uploadedFile['url'];
+        $user = $request->user();
 
-        $license->property()->save($property);
-    }
+        $priorLicense   = $license;
+        // $licenseData    = $request->validated();
+        $license        = new License([
+            'license_type_id' => $license->license_type_id,
+            'estatus'         => 1
+        ]);
 
-    /**
-     * save backgrounds informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveBackgrounds($request, $license)
-    {
-        $backgrounds = collect($request->backgrounds)->map(function ($background) use($license){
-            $background['current_license_id'] = $license->id;
-            return new ConstructionBackground($background);
-        });
-        $license->backgrounds()->saveMany($backgrounds);
-    }
+        DB::beginTransaction();
+        try {
+            $license->save();
 
-    /**
-     * save construction description informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveConstructionDescriptions($request, $license)
-    {
-        $description =  new ConstructionDescription($request->construction);
-        $license->construction()->save($description);
-    }
+            // mkdir(storage_path("app/public/solicitantes/{$priorLicense->user_id}/licencias/{$license->id}"));
+            Storage::makeDirectory("public/solicitantes/{$user->id}/licencias/{$license->id}", 0777, true);
 
-    /**
-     * save Construction Owner informarion
-     * @param json $request
-     * @param License $license
-     * @param User $user
-     * @return void
-     */
-    public function saveConstructionOwner($request, $license, $user)
-    {
-        // if($request->user()->hasRole('dro')){
-        if(!$request->owner['ownerFlag']){
-            $ownerData = $request->owner;
-        }else {
-            $applicantData = $user->applicantData;
-            $ownerData['nombre_apellidos'] = $user->nombre;
-            $ownerData['rfc'] = $applicantData->rfc;
-            $ownerData['domicilio'] = "{$applicantData->calle} {$applicantData->no} {$applicantData->colonia} {$applicantData->cp}";
-            $ownerData['ocupacion'] = $applicantData->ocupacion;
-            $ownerData['telefono'] = $applicantData->celular;
+            $property = Property::firstWhere('license_id', $priorLicense->id);
+            $newProperty = $property->replicate();
+            $newProperty->license_id = $license->id;
+
+            copy(
+                storage_path('app/'.$property->mapa_ubicacion),
+                storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/map.png"));
+
+            $newProperty->mapa_ubicacion    = "public/solicitantes/{$license->user_id}/licencias/{$license->id}/map.png";
+            $newProperty->mapa_url          = "/storage/solicitantes/{$license->user_id}/licencias/{$license->id}/map.png";
+
+            $newProperty->save();
+
+            //get all ads from prior license and replicate them to new license
+            $ads = AdDescription::where('license_id', $priorLicense->id)->get();
+            foreach ($ads as $ad) {
+                $newAd = $ad->replicate();
+                $newAd->colocacion = "Renovación";
+                $newAd->license_id = $license->id;
+                $newAd->save();
+            }
+
+
+            self::copyRequirements($priorLicense, $license);
+
+            $dates = [
+                'validity' => [
+                    'fecha_autorizacion' => Carbon::now()->format('Y-m-d'),
+                    //last day of current year
+                    'fecha_fin_vigencia' => Carbon::now()->endOfYear()->format('Y-m-d'),
+                ],
+            ];
+
+            $this->IStoreLicenseService->saveValidity((object)$dates, $license);
+
+            if ($request->backgrounds[0] <> null) {
+                $this->IStoreLicenseService->saveBackgrounds($request, $license);
+            }
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->storage
+                ->deleteDirectory("public/solicitantes/{$user->id}/licencias/{$license->id}");
+            abort(500, 'No se ha podido generar la licencia, intentelo más tarde '. $th->getMessage());
         }
-        $owner =  new ConstructionOwner($ownerData);
-        $license->owner()->save($owner);
+        DB::commit();
+
+        return response()->json($license, 200);
     }
 
-    /**
-     * save Compatibility Certificate informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveCompatibilityCertificate($request, $license)
+    public function generateQR(Request $request = null, License $license)
     {
-        $compatibility = new CompatibilityCertificate($request->uses);
-        $license->compatibilityCertificate()->save($compatibility);
-    }
+        $this->authorize('update', [License::class, $license]);
 
-    /**
-     * save Ad Descriptione informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveAdDescription($request, $license)
-    {
-        $ad = new AdDescription($request->ad);
-        $license->ad()->save($ad);
-    }
+        try {
+            //hash folio base64
+            $folio = Crypt::encryptString($license->folio);
+            $response = Http::get(
+                "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=https://permisos.capitaldezacatecas.gob.mx/verify.html?uuid=$folio&choe=UTF-8");
+            Storage::disk('local')->put("public/solicitantes/{$license->user_id}/licencias/{$license->id}/qr.png", $response->body(), 'public');
+            //get url of qr
+            $url = Storage::url("public/solicitantes/{$license->user_id}/licencias/{$license->id}/qr.png");
+            //save url in license
+            $license->qr_code = $url;
+            $license->save();
+        } catch (\Throwable $th) {
+            abort(500, 'No se ha podido generar el código QR, intentelo más tarde '. $th->getMessage());
+        }
 
-    /**
-     * save save SFD informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveSFD($request, $license)
-    {
-        $sfd = new SFD($request->s_f_d);
-        $license->sfd()->save($sfd);
-    }
-
-    /**
-     * save structural safety informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveSafety($request, $license)
-    {
-        $safety = new StructuralSafetyCertificate($request->safety);
-        $license->safety()->save($safety);
-    }
-
-    /**
-     * save Requirement informarion
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function saveRequirements($licenseData, $license)
-    {
-        $requirements = Requirement::where('license_type_id',$licenseData['license_type_id'])->get();
-        $requirementsData = collect($requirements)->map(function ($requiment) use ($license) {
-            $data['requirement_id'] = $requiment['id'];
-            $data['license_id'] = $license->id;
-            return new LicenseRequirement($data);
-        });
-        $license->requirements()->saveMany($requirementsData);
+        return response()->json($license->load($this->loadArrays), 200);
     }
 
     /**
@@ -729,47 +796,12 @@ class LicenseController extends Controller
                     storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$priorLicense->id}/requisitos/{$requiment->archivo_nombre}"),
                     storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/requisitos/{$requiment->archivo_nombre}"));
 
-                $newRequirement->archivo_ubicacion  = "public/solicitantes/{$license->user_id}/licencias/".$license->id."/{$requiment->archivo_nombre}";
-                $newRequirement->archivo_url        = "/storage/solicitantes/{$license->user_id}/licencias/".$license->id."/{$requiment->archivo_nombre}";
+                $newRequirement->archivo_ubicacion  = "public/solicitantes/{$license->user_id}/licencias/".$license->id."/requisitos/{$requiment->archivo_nombre}";
+                $newRequirement->archivo_url        = "/storage/solicitantes/{$license->user_id}/licencias/".$license->id."/requisitos/{$requiment->archivo_nombre}";
             }
             $newRequirement->save();
         });
     }
 
-    /**
-     * update licensen backgrounds
-     * @param json $request
-     * @param License $license
-     * @return void
-     */
-    public function updateBackgrounds($request, $license)
-    {
-        $backgrounds = collect($request->backgrounds)->map(function ($item) use($license){
-            if (isset($item['id'])) {
-                $background = ConstructionBackground::firstWhere('id', $item['id']);
-                $background->fill($item);
-            }else {
-                $background = new ConstructionBackground($item);
-                $background['current_license_id'] = $license->id;
-            }
-            return $background;
-        });
-        $license->backgrounds()->saveMany($backgrounds);
-    }
 
-    public function saveValidity($request, $license)
-    {
-        $validity = LicenseValidity::firstWhere('license_id', $license->id);
-        $diff = date_diff(date_create($request->validity['fecha_autorizacion']), date_create($request->validity['fecha_fin_vigencia']));
-
-        $validityData = [
-            'dias_total' => $diff->format("%a"),
-            'fecha_autorizacion' => $request->validity['fecha_autorizacion'],
-            'fecha_fin_vigencia' => $request->validity['fecha_fin_vigencia'],
-        ];
-        if (is_null($validity)) $validity = new LicenseValidity($validityData);
-        else $validity->fill($validityData);
-
-        $license->validity()->save($validity);
-    }
 }

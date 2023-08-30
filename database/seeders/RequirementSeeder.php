@@ -173,6 +173,33 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 2,
             ],
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 2,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 2,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 2,
+            ],
 
             //LICENCIA PROYECTOS ESPECIALES
             [
@@ -337,7 +364,33 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 3,
             ],
-
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 3,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 3,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 3,
+            ],
             //PERMISO PARA BARDEO
             [
                 "nombre" => "Documento que legalmente ampare la propiedad del predio",
@@ -395,7 +448,7 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 6,
             ],
-            //NÚMERO OFICIAL Y ALINEAMIENTO
+            //NÚMERO OFICIAL
             [
                 "nombre" => "Documento que legalmente ampare la propiedad del predio",
                 "descripcion" => null,
@@ -506,6 +559,33 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 8,
             ],
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 8,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 8,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 8,
+            ],
 
             //PERMISO PARA INSTALACIÓN DE ANTENA DE TELECOMUNICACIÓN
             [
@@ -584,6 +664,33 @@ class RequirementSeeder extends Seeder
                 "nombre" => "CONSTANCIA DE COMPATIBILIDAD URBANÍSTICA",
                 "descripcion" => "Hoteles, comercios, oficinas, escuelas, hospitales, centros de reunión, salas de espectaculos, clubes deportivos, sociales, baños, templos y estacionamientos) indicando las condicionantes que en ella se requieran para la ocupación del predio con el uso propuesto.",
                 "nota" => 'Para construcciones mayores a 300 m2 o construcciones no habitacionales.',
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 9,
+            ],
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 9,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 9,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
                 "activo" => true,
                 "obligatorio" => false,
                 "es_plano" => false,
@@ -762,6 +869,33 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 10,
             ],
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 10,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 10,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 10,
+            ],
 
             //PERMISO PARA ESTACIÓN DE SERVICIO (GASOLINERA)
             [
@@ -935,6 +1069,33 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 11,
             ],
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 11,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 11,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 11,
+            ],
 
             //CONSTANCIA DE SERVICIOS URBANOS
             [
@@ -989,6 +1150,69 @@ class RequirementSeeder extends Seeder
 
             //REGULARIZACIÓN
             //?id 15
+            [
+                "nombre" => "Planos arquitectónicos",
+                "descripcion" => "Fachadas, cortes, detalles, especificaciones, ejes, acotaciones escalas y cuadro de datos indicando la superficie de construcción por planta",
+                "nota" => 'Firma de Director Responsable de Obra (DRO)',
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => true,
+                "license_type_id" => 15,
+            ],
+            [
+                "nombre" => "Planos estructurales",
+                "descripcion" => "Planta de cimentación, especificación de losas, trabes, cadenas, columnas y muros de cargas en planta; '\n'Detalles de losa, trabes, cadenas, columnas; '\n'especificaciones de materiales, simbologia, notas generales y cadro de datos. '\n'Firmado por quien realizó la memoria de cálculo",
+                "nota" => 'Firmado por quien realizó la memoria de cálculo',
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => true,
+                "license_type_id" => 15,
+            ],
+            [
+                "nombre" => "Dictamen estructural",
+                "descripcion" => "Con nombre, firma y registro del D.R.O.",
+                "nota" => '',
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => true,
+                "license_type_id" => 15,
+            ],
+            [
+                "nombre" => "Documento que legalmente ampare la propiedad del predio",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 15,
+            ],
+            [
+                "nombre" => "Recibo de pago del predial del año fiscal correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 15,
+            ],
+            [
+                "nombre" => "Licencia de construcción",
+                "descripcion" => 'Firmada por el D.R.O.',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 15,
+            ],
+            [
+                "nombre" => "Fotografías de la vivienda o construcción",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 15,
+            ],
 
             //CONSTANCIA COMPATIBILIDAD URBANÍSTICA
             [
@@ -1357,6 +1581,33 @@ class RequirementSeeder extends Seeder
             ],
 
             //?23 Terminacion
+            [
+                "nombre" => "Licencia Autorizada",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 23,
+            ],
+            [
+                "nombre" => "Fotografías de la obra terminada",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 23,
+            ],
+            [
+                "nombre" => "Bitácora de la construcción",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 23,
+            ],
             //?24 ROMPER PAVIMENTO
             [
                 "nombre" => "Lista de materiales de JIAPAZ",
@@ -1533,6 +1784,33 @@ class RequirementSeeder extends Seeder
                 "es_plano" => false,
                 "license_type_id" => 27,
             ],
+            [
+                "nombre" => "Acredeitación ante el Municipió como DRO",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 27,
+            ],
+            [
+                "nombre" => "Credencial del colegio correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 27,
+            ],
+            [
+                "nombre" => "Folio, Ficha de Identificación de Obra (FIO)",
+                "descripcion" => 'Emitida por LicenciasZac',
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => false,
+                "es_plano" => false,
+                "license_type_id" => 27,
+            ],
             //?28 PERMISO PARA CIMENTACIÓN
             [
                 "nombre" => "Documento que legalmente ampare la propiedad del predio",
@@ -1560,6 +1838,34 @@ class RequirementSeeder extends Seeder
                 "obligatorio" => false,
                 "es_plano" => false,
                 "license_type_id" => 28,
+            ],
+            //ALINEAMIENTO
+            [
+                "nombre" => "Documento que legalmente ampare la propiedad del predio",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 29,
+            ],
+            [
+                "nombre" => "Recibo de pago del predial del año fiscal correspondiente",
+                "descripcion" => null,
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 29,
+            ],
+            [
+                "nombre" => "Fotografías de la propiedad",
+                "descripcion" => "Del frente y de costado",
+                "nota" => null,
+                "activo" => true,
+                "obligatorio" => true,
+                "es_plano" => false,
+                "license_type_id" => 29,
             ],
         ]);
     }

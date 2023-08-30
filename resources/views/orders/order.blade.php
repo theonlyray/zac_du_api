@@ -1,7 +1,50 @@
 <!DOCTYPE html>
     <html lang="es">
         <head>
-            <style>
+            <style type="text/css" media="all">
+                body {
+                @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&family=Zen+Kaku+Gothic+New&display=swap');
+                    font-family: 'Roboto', sans-serif;
+                    font-family: 'Zen Kaku Gothic New', sans-serif;
+
+                }
+                table {
+                    padding: 0px;
+                    font-size: 12px;
+                    border-spacing: 0px;
+                    border:0px !important;
+                }
+
+                th{
+                    padding:1px;
+                    text-align: left;
+                    text-indent: 10px;
+                    border-bottom: 1px solid rgb(0, 0, 0);
+                }
+                td{
+                    padding:1px;
+                    text-align: left;
+                    text-indent: 10px;
+                    border-bottom: 1px solid rgb(0, 0, 0);
+                }
+                td.noborder{
+                    padding:1px;
+                    text-align: left;
+                    text-indent: 10px;
+                    border-bottom: 0px solid rgb(0, 0, 0);
+                }
+                .bottom {
+                    border-bottom: 1px solid #ddd;
+                }
+
+                #datos{
+                    font-size: 12px;
+                }
+                .center {
+                    text-align: center;
+                    }
+            </style>
+            {{--  <style>
                 @page {
                 margin-top: 1cm;
                 margin-bottom: 1cm;
@@ -250,11 +293,71 @@
                 border-right: 50px solid #d9534f;
                 border-bottom: 35px solid transparent;
                 }
-            </style>
+            </style>  --}}
             <title>Orden de Cobro - {{ $license->licenseType->nombre }} - {{ $license->licenseType->nota}}</title>
         </head>
         <body>
-            <header>
+            <table border="0" width="100%" id="datos">
+                <tr>
+                    <td width='30%' class="noborder">
+                        {{--  <img src="{{public_path('/img/logo_a.png')}}" width="100%">  --}}
+                        <img src="https://proveedores.capitaldezacatecas.gob.mx/img/oficial_vertical.png" height="130px">
+                     </td>
+                    <td width="50%" style="text-align: right; font-size: 12px;" class="noborder">
+                        PRESIDENCIA MUNICIPAL DE ZACATECAS<br>
+                        Secretaría de Finanzas y Administración<br>
+                    </td>
+                </tr>
+            </table>
+            <div style="font-size: 24px; text-align: right;">
+             <span >Folio No. {{$order->folio_api ?? 000}}</span>
+            </div>
+
+            <div style="font-size: 9px; text-align: right;">
+                @if (!is_null($order->folio_api))
+                    <span>Fecha de Creación: <?php echo date('Y-m-d', strtotime($order->fecha_autorizacion))?></span><br>
+                    <span>Fecha de Expiracion: <?php echo date('Y-m-d', strtotime($order->fecha_autorizacion. ' + 7 days'))?></span><br>
+                @else
+                    <span>Fecha de Creación: <?php echo date('Y-m-d', strtotime($order->fecha_actualizacion))?></span><br>
+                    <span>Fecha de Expiracion: <?php echo date('Y-m-d', strtotime($order->fecha_actualizacion. ' + 7 days'))?></span><br>
+                @endif
+            </div>
+
+            <br>
+
+            <table width="100%" border="0" id="datos">
+                <tr>
+                    @if(!is_null($license->owner))
+                        <td style="text-align: left;">Propietario: <b>{{ $license->owner->nombre_apellidos }}</b></td>
+                    @endif
+                </tr>
+            </table>
+            <br>
+            <table width="100%" border="0">
+                <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th>Cuenta</th>
+                        <th>Descripcion</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($order->duties as $duty)
+                        <tr>
+                            <td>{{number_format($duty->cantidad,2) }}</td>
+                            <td>{{$duty->cuenta}}</td>
+                            <td>{{$duty->descripcion}}</td>
+                            <td>$ {{ number_format($duty->precio, 2)}}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <div style="text-align: right">
+                <h8 ><b>TOTAL $ </b> {{number_format($order->total, 2, '.', '')}}</h8>
+            </div>
+
+            {{--  <header>
                 <div class="row">
                   <div class="s6 center">
                     <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
@@ -268,38 +371,12 @@
                       PRESENTE.
                     </span><br>
                     <b style="font-size:13px;">
-                      {{--  Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">OC-{{ $license->folio }}</span>  --}}
-                      Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">101</span>
+                      Orden de Pago Folio No. <span style="font-size:13px;color:rgb(175, 63, 63)">{{$order->folio_api ?? 000}}</span>
                     </b>
                   </div>
                 </div>
             </header>
           <div class="row">
-            <br>
-            <b>DATOS DEL PERITO RESPONSABLE</b>
-            <table width="100%" class="border">
-            <tr>
-                <td class="border"> {{ $applicant->nombre }} </td>
-                <td class="border"> {{ $applicantData->calle }} {{ $applicantData->no }}. {{ $applicantData->colonia }} </td>
-            </tr>
-            <tr>
-                <td style="text-align: center;color: white;background-color: rgb(147, 0, 0); font-weight: bold;">NOMBRE Y APELLIDOS</td>
-                <td style="text-align: center;color: white;background-color: rgb(147, 0, 0);font-weight: bold;">DOMICILIO</td>
-            </tr>
-            </table>
-            <table width="100%" class="border">
-            <tr>
-                <td class="border"> {{ $applicantData->no_registro }}</td>
-                <td class="border"> {{ $applicantData->rfc }}</td>
-                <td class="border"> {{ $applicantData->celular }}</td>
-            </tr>
-            <tr>
-                <td style="text-align: center;color: white;background-color: rgb(147, 0, 0);font-weight: bold;">No. DE REGISTRO</td>
-                <td style="text-align: center;color: white;background-color: rgb(147, 0, 0);font-weight: bold;">R.F.C</td>
-                <td style="text-align: center;color: white;background-color: rgb(147, 0, 0);font-weight: bold;">TELÉFONO</td>
-            </tr>
-            </table>
-            <br>
             <br>
             <div class="gray-line center white-text grande bold">
             REFERENCIA DEL PAGO
@@ -350,61 +427,17 @@
               </table>
             </div>
             <div class="gray-line"></div>
-            <table width="100%">
-              <tr>
-                <td width="25%" class="right">
-                  {{--  <barcode code="{{ make_hash($license) }}" size="1.5" type="QR" error="M" class="barcode" />  --}}
-                </td>
-              </tr>
-            </table>
-            @if($order->validada)
-            <div class="row medio center white-text grande bold">
-              DATOS PARA REALIZAR EL PAGO EN EL BANCO AUTORIZADO
-            </div>
-            <table width="100%">
-              <tr>
-                <td width="20%">
-                  {{--  <img height="100px" src="https://ventanillavirtualguanajuato.net/img/bb001203.png">  --}}
-                </td>
-                <td width="80%">
-                  <table width="100%">
-                    <tr>
-                      <td class="grande center" width="30%">
-                        <b>PAGO EN SUCURSAL</b>
-                        <table width="100%">
-                          <tr>
-                            <td width="100%" class="grande center">
-                              NÚMERO DE SERVICIO:<br><br>
-                              <b>0000</b> <br><br>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                      <td class="grande center" width="70%" style="border-left: 1px solid black;">
-                        <b>TRANSFERENCIA BANCARIA</b>
-                        <table width="100%">
-                          <tr>
-                            <td width="50%" class="grande center">
-                              REFERENCIA / CONCEPTO:<br><br>
-                              {{--  <b>{{ make_hash($license) }}</b>  --}}
-                            </td>
-                            <td width="50%" class="grande center">
-                              CLABE PARA PAGO SPEI:<br><br>
-                              <b>000000000000000000</b><br><br>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-            @endif
           </div>
-          {{--  @if($license->orden['validate'])
-          <div class="chica"> Sello Digital:<br> {{ $sello_digital }}</div><br>
-          <div class="chica"> Sello Original:<br> {{ $sello }}</div>
-          @endif  --}}
+          --}}
+          <div class="row">
+            <div class="s12 center">
+              <img src=
+                "https://permisos.capitaldezacatecas.gob.mx/storage/solicitantes/{{$license->user_id}}/licencias/{{$license->id}}/pago/qr.png"
+                height="140px">
+            </div>
+            <div class="row center bold">
+                Pago en línea con tarjeta de crédito o débito
+            </div>
+          </div>
         </body>
     </html>

@@ -39,6 +39,7 @@ class UserController extends Controller
             default: $roleName = 'dro'; break;
         }
 
+        logger($roleName);
         $users = $user->getUsersByRole($roleName);
 
         abort_if($users->isEmpty(), 204, 'No se encontraron usuarios.');
@@ -87,6 +88,11 @@ class UserController extends Controller
                 $departmentUser = new DepartmentUser($departmentUserData);
                 $departmentUser->save();
             }
+            //save unit
+            if($request->has('unit_id')){//?sync role
+                $userToCreate->unit()->sync([$request->unit_id]);
+            }
+
             if (!is_null($request->college_id)) {
                 $collegeUserData = [
                     'user_id' => $userToCreate->id,
@@ -104,13 +110,14 @@ class UserController extends Controller
 
         DB::commit();
 
-        return response()->json($userToCreate->load('roles','department','college'), 200);
+        return response()->json($userToCreate->load('roles','department', 'unit' ,'college'), 200);
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
         $this->authorize('update', [User::class, $user]);
 
+        $rusr = request()->user();
         $user->fill(Arr::except(
             $request->validated(),
             ['contrasenia']
@@ -133,6 +140,17 @@ class UserController extends Controller
             if($request->has('unit_id')){//?sync role
                 $user->unit()->sync([$request->unit_id]);
             }
+
+            if($request->has('dep_id')){//?sync dep
+                $user->department()->sync([$request->dep_id]);
+            }
+
+	        if ($user->hasRole(['dro']) && ($rusr->hasRole(['directorCol']) ||
+                $rusr->hasRole(['subDirectorCol']) || $rusr->hasRole(['colaboradorCol']))) {
+                $colData = CollegeUser::firstWhere('user_id', $user->id);
+                $colData->validado = $request->validado_col;
+                $colData->save();
+            }
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(500, 'No se actualizado el usuario, intentelo más tarde. '.$th->getMessage());
@@ -140,7 +158,7 @@ class UserController extends Controller
 
             DB::commit();
 
-        return response()->json($user, 200);
+        return response()->json($user->load('roles','department', 'unit' ,'college'), 200);
     }
 
     public function permissions(UpdateUserRequest $request, User $user)
@@ -167,22 +185,4 @@ class UserController extends Controller
 
         return response()->json($user, 200);
     }
-
-    //! not implemented till revision
-    // public function destroy(DestroyUserRequest $request, User $user)
-    // {
-    //     $this->authorize('destroy',
-    //         [
-    //             User::class,
-    //             $user->roles[0]->id,
-    //             $request->contrasenia
-    //         ]);
-
-    //     if ($user->delete()) {
-    //         return response()->json($user, 200);
-    //     }
-
-    //     abort(500, 'No se ha podido eliminar al usuario.');
-
-    // }
 }

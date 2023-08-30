@@ -21,9 +21,9 @@
       left: 0cm;
       right: 0cm;
       height: 2cm;
-      background-color: #a31831;
+      background-color: #008538;
       color: white;
-      text-align: center;
+      text-align: left;
       line-height: 1.5cm;
     }
     body {
@@ -31,7 +31,7 @@
       margin-right: 2cm;
       font-family: Arial, Helvetica, sans-serif;
       margin-top: 120px;
-      font-size: 12px;
+      font-size: 14px;
     }
     .img-contain {
       width: 70px;
@@ -258,106 +258,93 @@
 </head>
 
 <body>
-
-  <header>
-    <div class="row">
-      <div class="s6 left">
-        <img src="https://www.zacatecas.gob.mx/wp-content/uploads/2021/11/horizontal-justo-300x106.png" height="70px">
-      </div>
-      <div class="s6 center" style="padding:5px;">
-        <b style="font-size:13px;">Secretaría de Desarrollo Urbano y Medio Ambiente</b>
-
-        <div class="row right">
-          <b style="font-size:11px;">
-            Zacatecas, Zac; a {{ $license->fecha_actualizacion->format('d-m-Y') }}
-          </b><br>
-          <b style="font-size:11px;">
-            EXPEDIENTE {expediente}
-          </b><br>
-          <b style="font-size:11px;">
-            NÚMERO DE OFICIO {{ $license->folio }}
-          </b><br>
-          <b style="font-size:11px;">
-            RECIBO: {recibo}
-          </b>
-          <b style="font-size:11px;">Página <span class=" pagenum" style="font-size:11px;"></span></b>
+    <header>
+        <div class="row">
+            <div class="s6 left">
+                <img src="https://permisos.capitaldezacatecas.gob.mx/img/logo/logo-clear-v.png" height="100px">
+            </div>
+            <div class="s6 right" style="padding:5px;">
+                <span style="font-size:11px;">
+                    Ciudad de Zacatecas, Zac.; a {{ $validity_date }}
+                </span><br>
+                <span class="right" style="font-size:10px;"> DEPARTAMENTO DE PLANEACIÓN Y DESARROLLO URBANO </span><br>
+                <b style="font-size:11px;">
+                    NÚMERO DE OFICIO {{ $license->folio }}
+                </b><br>
+            </div>
         </div>
-      </div>
-    </div>
-  </header>
-  <main>
-    <div class="row">
-      <b> C. APODERADO LEGARL </b> <br>
-      {{ $applicant->nombre }} <br>
-      {{ $applicantData->calle }} {{ $applicantData->no }} <br>
-      {{ $applicantData->colonia }} <br>
-      <b>P R E S E N T E</b>
-    </div><br>
-    <div class="row justify">
-      Por este conducto y en respuesta a su atento escrito en el que solicita la autorización correspondiente para
-      {{ $license->ad->colonia }} la licencia de {$adsNumber} {{$license->ad->cantidad > 1 ? 'Anuncio' : 'Anuncios'}} {$logotipos} de {$tienda} que Usted
-      representa en el domicilio arriba citado de esta Ciudad, informamos a Usted que esta Secretaría, actuando de
-      conformidad con las disposiciones contenidas en los Artículos 1,2,3,40 y 53 del Reglamento de Imagen Urbana
-      vigente en este Municipio, los Artículos 1,2,3,6,12 y 16 del Reglamento de Publicidad en el Municipio de
-      Zacatecas, así como las contenidad en la ley de Ingreso del Municipio para el Ejercicio Físcal 2022, ha decidido
-      otorgal la autorización bajo las siguientes condiciones:
-      <br>
-    </div>
-    <div class="row">
-      <ul>
-        <li>1. ANUNCIO TIPO: {$LOGOTIPO LUMUNISI ADOSADO A FACHADA (TRES)} <br>
-          INFORMAIÓN: "{$LOGOTIPO LIVERPOOL}" <br>
-          Dimensiones: {$2.06M DE LARGO x 2.90 DE ANCHO} <br>
-          Refrendo 2022: $ {$18,069.00}
-        </li><br>
-        <li>2. ANUNCIO TIPO: {$LOGOTIPO LUMUNISI ADOSADO A FACHADA (TRES)} <br>
-          INFORMAIÓN: "{$LOGOTIPO LIVERPOOL}" <br>
-          Dimensiones: {$2.06M DE LARGO x 2.90 DE ANCHO} <br>
-          Refrendo 2022: $ {$18,069.00}
-        </li><br>
-      </ul>
-    </div>
-    <div class="row">
-      Total: $ {$18,562.00} ({$DIESCIOCHO MIL QUINIENTOS SESENTA Y DOS PESOS } 00/100 M.N)
-    </div>
-    <br>
-    <div class="row justify">
-      El titular de la licencia tendrá la obligación de mantener en óptimas condiciones el funcionamiento y la presencia
-      de los anuncios, así como prpoporcionar y dar mantenimiento permanente para conservarlo en buen estado. Cualquier
-      modificación deberá ser notificada a esta Secretaría.
-    </div>
-    <br>
-    <div class="row justify">
-      La licencia tiene vigencia hasta el {$31 de marzo del 2023}, al término de la cual deberá ser renovada en caso de
-      no hacerlo se le sancionará conforme lo marca la ley para los casos.
-    </div>
-    <br>
-    <div class="row justify">
-      Sin mas por el momento gradezco atención a la presente.
-    </div>
-    <br><br>
-    <div class="row center">
-      <b>A T E N T A M E N T E</b>
-    </div>
-    <br><br><br><br>
-    <div class="row center">
-      <b>
-        M. {{ $dirSDUMA->nombre }}<br>
-        SECRETARÍA DE DESARROLLO URBANO Y MEDIO AMBIENTE
-      </b>
-    </div>
-    <br><br><br>
-    <div class="row right">
-      <span>
-        LIC. {{ $dirDep->nombre }} <br>
-        JEFA DEL DPTO. DE PLANEACIÓN Y <br> DESARROLLO URBANO
-      </span>
-    </div>
-  </main>
-  <footer>
-    <b>Av. Héroes de Chapultepec N° 1110 Col. Lázaro Cárdenaz, Zacatecas, Zac. C.P. 98040 Tel. 92 3 94 21</b>
-
-  </footer>
+    </header>
+    <main>
+        <br>
+        <div class="row">
+        <b> C. APODERADO LEGAL </b> <br>
+        {{ $license->owner->nombre_apellidos }} <br>
+        {{ $license->owner->domicilio }} <br><br>
+        <b>P R E S E N T E</b>
+        </div><br>
+        <div class="row justify">
+            <b>AUTORIZACIÓN DE ANUNCIO </b>
+            <br><br>
+        Por este conducto y en respuesta a su atento escrito en el que solicita
+        la autorización correspondiente para la <b>{{$license->ads[0]->colocacion}}</b> de {{$adD}}
+        @if ($adD > 1) anuncios
+        @else
+            anuncio
+        @endif
+        en el domicilio arriba citado de esta Ciudad,
+        informamos a Usted que esta Secretaría, {{ $license->validity->observation }},
+        así como las contenidas en la ley de Ingreso del Municipio para el Ejercicio Físcal {{Carbon\Carbon::now()->year}}, ha decidido
+        otorgal la autorización bajo las siguientes condiciones:
+        <br>
+        </div>
+        <div class="row">
+        <ul>
+            @foreach ($license->ads as $ad)
+                <li>ANUNCIO TIPO: {{$ad->tipo}} <br>
+                    INFORMACIÓN: {{$ad->text}} <br>
+                    Dimensiones: {{$ad->alto}} M DE ALTO x {{$ad->largo}} M DE LARGO X {{$ad->ancho}} M DE ANCHO<br>
+                </li>
+            <br>
+            @endforeach
+        </ul>
+        </div>
+        <br>
+        <div class="row justify">
+        El titular de la licencia tendrá la obligación de mantener en óptimas condiciones el funcionamiento y la presencia
+        de los anuncios, así como proporcionar y dar mantenimiento permanente para conservarlo en buen estado. Cualquier
+        modificación deberá ser notificada a esta Secretaría.
+        </div>
+        <br>
+        <div class="row justify">
+        La licencia tiene vigencia hasta el día
+            @if (!is_null($license->validity))
+                {{ $license->validity->fecha_fin_vigencia->format('d-m-Y')}}
+            @else
+                {{ 'Vista Previa' }}
+            @endif
+        al término de la cual deberá ser renovada en caso de
+        no hacerlo se le sancionará conforme lo marca la ley para los casos.
+        </div>
+        <br>
+        <div class="row justify">
+         Sin mas por el momento gradezco atención a la presente.
+        </div>
+        <br>
+        <div class="row justify grande">
+            El presente acto administrativo cuenta con firma electrónica del servidor público competente,
+            amparada por un certificado vigente a la fecha de la elaboración
+            y es valido de conformidad con lo dispuesto en la le de firma electrónica del estado de Zacatecas.
+        </div><br><br>
+        @if ($license->qr_code)
+            <div class="row center">
+                <b class="grande">Para verificar la autenticidad de este documento, escanee el siguiente código QR</b><br>
+                <img src="https://permisos.capitaldezacatecas.gob.mx{{$license->qr_code}}" height="140px">
+            </div>
+        @endif
+        {{--  <footer>
+            <b>Av. Héroes de Chapultepec N° 1110 Col. Lázaro Cárdenaz, Zacatecas, Zac. C.P. 98040 Tel. 92 3 94 21</b>
+        </footer>  --}}
+    </main>
 </body>
 
 </html>
