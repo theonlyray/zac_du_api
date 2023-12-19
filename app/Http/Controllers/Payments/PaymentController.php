@@ -110,12 +110,14 @@ class PaymentController extends Controller
         collect($request->ordersIds)->map(function($id) use ($token) {
             $paid = self::queryPaid($id,$token);
             if ($paid){
+
                 //? local authorization
                 $order = Order::firstWhere([
                     ['folio_api', $id],
                 ]);
                 $order->pagada = true;
                 $order->save();
+                $user = User::find($order->validator_id);
                 $license = License::firstWhere('id',$order->license_id);
 
                 self::authLicense($license, $order);
@@ -125,9 +127,9 @@ class PaymentController extends Controller
                 //todo manual chmod to sing service can write on dir
                 exec("chmod -R 0777 /var/www/permisos.capitaldezacatecas.gob.mx/api/storage/app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/");
                 //?call sign job
-                dispatch(new SignLicense($license, $order));
+                dispatch(new SignLicense($license, $user));
 
-            if ($this->checkLicenseType->isConstruction($license->license_type_id)) dispatch(new SignPlans($license, $order));
+            if ($this->checkLicenseType->isConstruction($license->license_type_id)) dispatch(new SignPlans($license, $user));
                 array_push($this->foliosArray, $license->folio);
             }
         });

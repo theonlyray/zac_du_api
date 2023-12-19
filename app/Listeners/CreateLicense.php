@@ -205,7 +205,7 @@ class CreateLicense
             $this->data['validity_month'] = $mes;
             $this->data['validity_year'] = $this->data['validity']->created_at->format('Y');
         }else {
-            $this->data['validity'] = null;
+            $this->data['validity'] = new LicenseValidation(['created_at' => Carbon::now()]);
             //? if the license is not validated yet, we use the date of the last update
             $mes = $this->meses[$license->fecha_actualizacion->format('m')-1];
             $this->data['validity_date'] = $license->fecha_actualizacion->format('d') . ' de ' . $mes . ' de ' .

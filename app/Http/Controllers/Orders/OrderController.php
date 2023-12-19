@@ -275,7 +275,8 @@ class OrderController extends Controller
         $data = [
 
             'nombre' => $owner->nombre_apellidos ?? $user->nombre,
-            'descripcion' => $licType->nombre .' '. $licType->nota,
+            // 'descripcion' => $licType->nombre .' '. $licType->nota,
+            'descripcion' => self::setConceptDescription($license, $order)['duties'][0]['descripcion'],
             'id' => $duties->map(function ($duty){
                 return $duty->idCuenta;
             })->toArray(),
@@ -309,7 +310,7 @@ class OrderController extends Controller
             case 'construction':
                 $months = self::calculateMonths($license);
                 $order['duties']->map(function ($duty) use($license, $months){
-                    if($duty->idCuenta == 155){
+                    if($duty->idCuenta == 155 || $duty->idCuenta == 208){
                         $duty->descripcion .= ' '.$license->construction->sup_total_amp_reg_const.' m2, '. $months. ' meses de duración; Ubicado en '.
                         $license->property->calle.' '.$license->property->no.', '.$license->property->colonia;
                     }

@@ -42,7 +42,6 @@ Route::prefix('autenticacion')->group(function () {
     Route::get('/docs', [AuthController::class, 'docs']);
     Route::post('/recuperacion', [AuthController::class, 'resetPassword']);
     Route::get('/license', [AuthController::class, 'license']);
-    // Route::get('/truncate', [AuthController::class, 'truncateLicensesTable']);
 });
 
 
@@ -138,6 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('licencias')->group(function () {
         Route::post('/pagos', [PaymentController::class, 'syncOrders']);
+        Route::post('/reporte', [LicenseController::class, 'export']);
         Route::post('/{license}/generate-qr', [LicenseController::class, 'generateQR']);
         Route::patch('/{license}/requisitos/{requirements}', [LicenseController::class, 'updateRequirement']);
         Route::patch('/{license}/mapa', [LicenseController::class, 'updateMap']);

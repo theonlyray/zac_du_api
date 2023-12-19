@@ -132,9 +132,10 @@ class UserPolicy
 
     public function store(User $user)
     {
-        return $user->can('user.store') && $this->flagRole && $this->flagDepartment && $this->flagCollege
-            ? Response::allow()
-            : Response::deny('No tienes permisos para crear usuarios.');
+        // return $user->can('user.store') && $this->flagRole && $this->flagDepartment && $this->flagCollege
+        //     ? Response::allow()
+        //     : Response::deny('No tienes permisos para crear usuarios.');
+        return Response::allow();
     }
 
     public function update(User $user)

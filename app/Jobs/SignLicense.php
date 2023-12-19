@@ -61,7 +61,7 @@ class SignLicense implements ShouldQueue
 
     public function signLicense(License $license, $user)
     {
-        $user = User::find($user->id)->load('credentials');
+        $user = User::with('credentials')->find($user->id);
 
         $file  = file_get_contents(storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/{$license->folio}.pdf"));
 
@@ -87,7 +87,7 @@ class SignLicense implements ShouldQueue
 
         $file_URL = json_decode($response);
         // logger($file_URL->file);
-        // exec("chmod -R 0777 /var/www/permisos.capitaldezacatecas.gob.mx/api/storage/app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/");
+        exec("chmod -R 0777 /var/www/permisos.capitaldezacatecas.gob.mx/api/storage/app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/");
 
         if (copy(
             $file_URL->file,

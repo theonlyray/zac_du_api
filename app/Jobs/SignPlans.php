@@ -51,12 +51,13 @@ class SignPlans implements ShouldQueue
             }
         })->reject(function ($value) { return $value == null; });
 
-        $user = User::find($user->id)->load('credentials');
+        // $user = User::with('credentials')->find($user->id);
+        $user = User::with('credentials')->find(19);
         logger($user);
 
         $plans->map(function ($plan) use ($license, $user){
             // logger($license->id);
-            logger($plan->archivo_nombre);
+            // logger($plan->archivo_nombre);
             $file  = file_get_contents(storage_path("app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/requisitos/{$plan->archivo_nombre}"));
             $response = Http::acceptJson()->attach(
                 'document', $file, 'pdf-licencia.pdf'
@@ -66,7 +67,8 @@ class SignPlans implements ShouldQueue
 
             $signed = (json_decode($response));
 
-            logger($response);
+            // logger("init");
+            // logger($response);
             // logger($signed->process_id);
             Http::acceptJson()
             ->post('https://efirma.capitaldezacatecas.gob.mx/api/v1/massive', [
@@ -74,14 +76,16 @@ class SignPlans implements ShouldQueue
                 'password' => $user->credentials->password,
                 'process_id' =>  $signed->process_id,
             ]);
-
+            // logger("massive");
+            // logger($response);
             $response = Http::acceptJson()
             ->post('https://efirma.capitaldezacatecas.gob.mx/api/v1/finalize', [
                 'process_id' =>  $signed->process_id,
             ]);
             $file_URL = json_decode($response);
-            // logger('end');
-            // logger($file_URL->file);
+            // logger('finalize');
+            // logger($response);
+            exec("chonw -R root:root /var/www/permisos.capitaldezacatecas.gob.mx/api/storage/app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/");
             exec("chmod -R 0777 /var/www/permisos.capitaldezacatecas.gob.mx/api/storage/app/public/solicitantes/{$license->user_id}/licencias/{$license->id}/");
 
             if(copy(

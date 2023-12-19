@@ -300,8 +300,10 @@
     <b>II) DATOS DEL PERITO RESPONSABLE</b>
     <table width="100%" class="border">
       <tr>
-        <td class="border"> {{ $applicant->nombre }} </td>
-        <td class="border"> {{ $applicantData->calle }} {{ $applicantData->no }}. {{ $applicantData->colonia }} </td>
+        <td class="border"> {{ $license->license_type_id == 2 ? $applicant->nombre : '' }} </td>
+        <td class="border"> {{ $license->license_type_id == 2 ? $applicantData->calle : '' }}
+            {{ $license->license_type_id == 2 ? $applicantData->no : '' }}.
+            {{ $license->license_type_id == 2 ? $applicantData->colonia : '' }} </td>
       </tr>
       <tr>
         <td style="text-align: center;color: white;background-color: #008538; font-weight: bold; font-size:11px;">NOMBRE Y APELLIDOS</td>
@@ -310,9 +312,9 @@
     </table>
     <table width="100%" class="border">
       <tr>
-        <td class="border"> {{ $applicantData->no_registro }}</td>
-        <td class="border"> {{ $applicantData->rfc }}</td>
-        <td class="border"> {{ $applicantData->celular }}</td>
+        <td class="border"> {{ $license->license_type_id == 2 ? $applicantData->no_registro : '' }}</td>
+        <td class="border"> {{ $license->license_type_id == 2 ? $applicantData->rfc : '' }}</td>
+        <td class="border"> {{ $license->license_type_id == 2 ? $applicantData->celular : '' }}</td>
       </tr>
       <tr>
         <td style="text-align: center;color: white;background-color: #008538;font-weight: bold; font-size:11px;">No. DE REGISTRO</td>

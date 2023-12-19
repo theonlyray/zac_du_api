@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Licenses;
 
+use App\Events\ApiOPQueried;
 use App\Events\RequestValidated;
+use App\Exports\LicensesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Licenses\StoreLicenseObservationRequest;
 use App\Http\Requests\Licenses\UpdateLicenseRequest;
@@ -34,6 +36,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Crypt;
+use Maatwebsite\Excel\Facades\Excel;
+
 class LicenseController extends Controller
 {
     protected $storage;
@@ -101,6 +105,10 @@ class LicenseController extends Controller
         $licenses = License::getLicencesList($user, $status);
 
         abort_if($licenses->isEmpty(), 204, 'No se encontraron licencias.');
+
+        if ($status == 'Autorizadas') {
+            self::saveRecibo($licenses);
+        }
 
         return response()->json($licenses, 200);
     }
@@ -458,6 +466,7 @@ class LicenseController extends Controller
             $requirements->save();
 
         } catch (\Throwable $th) {
+            logger($th);
             abort(500, 'No se ha podido actualizar el requisito, intentelo más tarde.'. $th);
         }
         return response()->json($license->load('licenseType', 'applicant', 'property',
@@ -803,5 +812,48 @@ class LicenseController extends Controller
         });
     }
 
+    /**
+     * export licenses report
+     * @param Request $request
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('index', License::class);
+
+        return Excel::download((new LicensesExport)
+            ->forStatus($request->status)
+            ->forDates($request->init ?? null, $request->finish ?? null),
+            'licencias.xlsx');
+    }
+
+    /**
+     * query url_recibo and save in license table
+     */
+    private function saveRecibo($licenses){
+        $event = event(new ApiOPQueried(null));
+        $token = $event[0];
+
+        foreach ($licenses as $license) {
+            if ($license->url_recibo == null) {
+                $response = Http::withHeaders([
+                    'Authorization' => "Bearer {$token}",
+                ])
+                ->acceptJson()
+                ->post('https://sefin.capitaldezacatecas.gob.mx/api/orden/folioCheck', [
+                    'folio' => $license->order->folio_api,
+                ]);
+
+                abort_if(!$response->successful(),500,"Error de consulta (API), intentelo más tarde.
+                 {$license->order->folio_api}");
+
+                $response = (json_decode($response));
+                if (!is_null($response->urlFiles)) {
+                    $license->url_recibo = $response->urlFiles;
+                    $license->save();
+                }
+            }
+        }
+
+    }
 
 }

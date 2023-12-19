@@ -45,7 +45,8 @@ class OrderPolicy
         }else if ($ability == 'destroy') {
             if(in_array($departmentIdInRequest, $userDepartmentIds)) $this->flag = true;
 
-            if(!$order->pagada && !$order->validada) $this->flag = true;
+            // && !$order->validada
+            if(!$order->pagada) $this->flag = true;
             else{
                 $this->deletingMessage = 'No puedes eliminar una orden pagada ni validada.';
                 $this->flag = false;
